@@ -2,6 +2,8 @@ package com.fpu.exe.cleaninghub.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,11 +24,13 @@ public class Voucher {
     @Column(name = "percentage")
     private Integer percentage;
 
-    @Column(name = "created_date")
-    private LocalDate createdDate;
+    @Column(name = "create_date", nullable = false, updatable = false)
+    @CreatedDate
+    private LocalDate createDate;
 
-    @Column(name = "updated_date")
-    private LocalDate updatedDate;
+    @Column(name = "update_date", insertable = false)
+    @LastModifiedDate
+    private LocalDate updateDate;
 
     @Column(name = "expired_date")
     private LocalDateTime expiredDate;
