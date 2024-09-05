@@ -1,5 +1,6 @@
 package com.fpu.exe.cleaninghub.services.interfc;
 
+import com.fpu.exe.cleaninghub.dto.response.UserResponseDTO;
 import com.fpu.exe.cleaninghub.entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +13,10 @@ import java.util.Optional;
 
 public interface UserService {
     UserDetailsService userDetailsService();
-    User getUserByEmail(String email);
+    UserResponseDTO getUserByEmail(String email);
+
+//    UserResponseDTO updateUserInfo(Integer id, UserDTO userDTO);
+
 //    void changePassword(ChangePasswordRequest request, Principal connectedUser);
 
 

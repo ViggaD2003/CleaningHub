@@ -3,6 +3,8 @@ package com.fpu.exe.cleaninghub.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,15 +27,17 @@ public class Booking {
     @Column(name = "status")
     private String status = "Pending";
 
-    @Column(name = "created_date")
-    private LocalDateTime createdDate;
 
+    @Column(name = "booking_date", nullable = false, updatable = false)
+    @CreatedDate
+    private LocalDate bookingDate;
+
+    @Column(name = "update_date", insertable = false)
+    @LastModifiedDate
+    private LocalDate updateDate;
 
     @Column(name = "address")
     private String address;
-
-    private LocalDate bookingDate;
-    private LocalTime bookingTime;
 
     @JsonIgnore
     @OneToMany(mappedBy = "booking", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
@@ -42,6 +46,10 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "staff_id")
+    private User staff;
 
     @ManyToOne
     @JoinColumn(name = "service_id")

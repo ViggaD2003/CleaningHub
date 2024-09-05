@@ -2,6 +2,8 @@ package com.fpu.exe.cleaninghub.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
 
@@ -30,7 +32,8 @@ public class Rating
         @Column(name = "stars")
         private Integer stars;
 
-        @Column(name = "rating_date")
+        @CreatedDate
+        @Column(name = "rating_date",  nullable = false, updatable = false)
         private LocalDate ratingDate;
 
         @Column(name = "comments")

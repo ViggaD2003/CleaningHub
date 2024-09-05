@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.cglib.core.Local;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,10 +36,12 @@ public class Service {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "created_date")
-    private LocalDate createdDate;
+    @Column(name = "create_date", nullable = false, updatable = false)
+    @CreatedDate
+    private LocalDate createDate;
 
-    @Column(name = "updatedDate")
+    @Column(name = "update_date", insertable = false)
+    @LastModifiedDate
     private LocalDate updateDate;
 
     @JsonIgnore
