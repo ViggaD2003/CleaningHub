@@ -18,22 +18,22 @@ public class SwaggerConfiguration {
     @Bean
     public GroupedOpenApi publicApi() {
         return GroupedOpenApi.builder()
-                .group("Badminton-Booking-api")
-                .packagesToScan("com.main.badminton.booking.controller")
+                .group("Cleaning-Hub-api")
+                .packagesToScan("com.fpu.exe.cleaninghub.controller")
                 .pathsToMatch("/api/**")
                 .build();
     }
 
     @Bean
-    public OpenAPI BadmintonBookingOpenAPI() {
+    public OpenAPI CleaningHubOpenAPI() {
         return new OpenAPI()
                 .addServersItem(new Server().url("/"))
-                .info(new Info().title("Badminton Booking API")
-                        .description("Badminton booking application")
+                .info(new Info().title("CLeaning Hub API")
+                        .description("Cleaning hub application")
                         .version("v0.0.1")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")))
                 .externalDocs(new ExternalDocumentation()
-                        .description("Badminton Booking Documentation")
+                        .description("Cleaning Hub Documentation")
                         .url("https://troll.vn"));
     }
 
