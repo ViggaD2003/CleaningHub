@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@OpenAPIDefinition(info = @Info(title = "BADMINTON BOOKING", version = "1.0",
+@OpenAPIDefinition(info = @Info(title = "CLEANING HUB", version = "1.0",
         contact = @Contact(name = "Khuat Van Thanh Danh (Deputy group)", email = "thanhdanhvt2003@gmail.com")),
         security = {@SecurityRequirement(name = "basicAuth"), @SecurityRequirement(name = "bearerToken")}
 )
