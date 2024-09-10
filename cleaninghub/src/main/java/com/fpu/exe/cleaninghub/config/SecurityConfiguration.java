@@ -43,7 +43,7 @@ public class SecurityConfiguration {
     private UserService userService;
 
     //    @Autowired
-//    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomerOAuth2UserService customOAuth2UserService;
     @Autowired
     private final LogoutService logoutHandler;
     @Autowired
@@ -71,7 +71,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                                 .requestMatchers("/api/v1/**", "/swagger-resources/**",
-                                        "/webjars/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**")
+                                        "/webjars/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/oauth2/authorization/google")
                                 .permitAll()
 //                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 //                        .requestMatchers("/api/v1/user/**").hasRole("USER")
@@ -84,10 +84,11 @@ public class SecurityConfiguration {
                 .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
                         .addLogoutHandler(logoutHandler)
                         .logoutSuccessHandler((request, response, authentication) ->
-                                SecurityContextHolder.clearContext()));
-//                .oauth2Login(oauth2 -> oauth2
-//                        .userInfoEndpoint(user -> user.userService(customOAuth2UserService))
-//                        .defaultSuccessUrl("/api/v1/auth/signingoogle", true));
+                                SecurityContextHolder.clearContext()))
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(user -> user.userService(customOAuth2UserService))
+                        .defaultSuccessUrl("/api/v1/auth/signInGoogle", true));
+
         http.exceptionHandling(exception -> exception
                 .authenticationEntryPoint(authenticationEntryPoint())
         );
