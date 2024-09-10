@@ -39,11 +39,11 @@
             return ResponseEntity.ok(authenticationService.signIn(signInRequest));
         }
 
-//        @GetMapping("/signingoogle")
-//        public void handleGoogleCallback( HttpServletResponse response) throws IOException {
-//            String accessToken = authenticationService.signingoogle();
-//            response.sendRedirect("http://localhost:5173/login-success?token=" + accessToken);
-//        }
+        @GetMapping("/signInGoogle")
+        public void handleGoogleCallback(HttpServletResponse response) throws IOException {
+            JwtAuthenticationResponse accessToken = authenticationService.signInGoogle();
+            response.sendRedirect("http://localhost:5173/login-success?token=" + accessToken.getToken() + "&refreshToken=" + accessToken.getRefreshToken());
+        }
 
         @PostMapping("/refresh")
         public void refresh(HttpServletRequest request, HttpServletResponse response) throws IOException {

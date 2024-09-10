@@ -24,10 +24,7 @@ public interface AuthenticationService {
 
    JwtAuthenticationResponse getTokenAndRefreshToken(UserDetails userDetails) throws BadRequestException;
 
-//   String signingoogle(String email);
+    JwtAuthenticationResponse signInGoogle();
 
-//    String signingoogle();
-
-//    ResponseEntity<?> signingoogle2(String email);
 
 }

@@ -23,12 +23,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
@@ -235,5 +239,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         } else {
             throw new BadRequestException("Exception");
         }
+    }
+
+    @Override
+    public JwtAuthenticationResponse signInGoogle() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Optional<User> userOptional = userRepo.findByEmail(email);
+
+        User user = userOptional.orElseThrow(() -> new IllegalArgumentException("not found"));
+        List<Token> listToken = tokenRepository.findAllValidTokensByUser((long) user.getId());
+        Token token = new Token();
+        if(listToken.size() == 1){
+            token = listToken.get(0);
+        }
+
+        return JwtAuthenticationResponse.builder()
+                .token(token.getToken())
+                .refreshToken(token.getRefreshToken())
+                .build();
     }
 }
