@@ -62,6 +62,7 @@ public class CleaninghubApplication implements CommandLineRunner {
 			User user = new User();
 			user.setEmail("admin@gmail.com");
 			user.setRole(role);
+			user.setStatus(true);
 			user.setPassword(new BCryptPasswordEncoder().encode("123"));
 			userRepository.save(user);
 		}

@@ -3,15 +3,15 @@ package com.fpu.exe.cleaninghub.token;
 
 import com.fpu.exe.cleaninghub.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
-@Data
 @Entity
+@Getter
+@Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "token")
 public class Token {
     @Id

@@ -29,8 +29,8 @@
 
 
         @PostMapping("/signup")
-        public ResponseEntity<JwtAuthenticationResponse> signup(@RequestBody SignUpRequest signUpRequest){
-            return ResponseEntity.ok(authenticationService.signUp(signUpRequest));
+        public ResponseEntity<String> signup(@RequestBody SignUpRequest signUpRequest){
+            return ResponseEntity.ok("create successfully");
         }
 
         @PostMapping("/signin")
