@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.IOException;
 
 public interface AuthenticationService {
-    JwtAuthenticationResponse signUp(SignUpRequest signUpRequest);
+    void signUp(SignUpRequest signUpRequest);
 
     JwtAuthenticationResponse signIn(SignInRequest signInRequest);
 

@@ -52,7 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
     @Override
-    public JwtAuthenticationResponse signUp(SignUpRequest signUpRequest) {
+    public void signUp(SignUpRequest signUpRequest) {
         User user = new User();
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(signUpRequest.getPassword());
@@ -61,16 +61,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Role role = roleRepo.findById(signUpRequest.getRoleId()).orElseThrow(() -> new IllegalArgumentException("Role not found !"));
         user.setRole(role);
         user.setStatus(true);
-
-        var savedUser = userRepo.save(user);
-        var jwtToken = jwtService.generateToken(savedUser);
-        var refreshToken = jwtService.generateRefreshToken(savedUser);
-        saveUserToken(savedUser, jwtToken, refreshToken);
-
-        return JwtAuthenticationResponse.builder()
-                .token(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
     }
 
     private void saveUserToken(User user, String jwtToken, String jwtRefreshToken) {
@@ -110,7 +100,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (!user.getStatus()) {
             throw new IllegalArgumentException("User is not active !");
         }
-        var jwt = jwtService.generateRefreshToken(user);
+        var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
 
         revokeAllUserToken(user);
