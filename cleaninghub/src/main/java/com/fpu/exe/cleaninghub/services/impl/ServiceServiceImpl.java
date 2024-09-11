@@ -38,7 +38,7 @@ public class ServiceServiceImpl implements ServiceService {
 
     @Override
     public CreateServiceResponseDto createService(CreateServiceRequestDto createServiceRequestDto) {
-        Category category = categoryRepository.findById(Long.valueOf(createServiceRequestDto.getCategoryId())).orElseThrow(() -> new RuntimeException("Category not found"));
+        Category category = categoryRepository.findById((createServiceRequestDto.getCategoryId())).orElseThrow(() -> new RuntimeException("Category not found"));
         com.fpu.exe.cleaninghub.entity.Service service = com.fpu.exe.cleaninghub.entity.Service.builder()
                 .name(createServiceRequestDto.getName())
                 .description(createServiceRequestDto.getDescription())
@@ -62,7 +62,7 @@ public class ServiceServiceImpl implements ServiceService {
     public CreateServiceResponseDto updateService(Integer serviceId, UpdateServiceRequestDto updateServiceRequestDto) {
         com.fpu.exe.cleaninghub.entity.Service existingService = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("Service not found"));
-        Category category = categoryRepository.findById(Long.valueOf(updateServiceRequestDto.getCategoryId()))
+        Category category = categoryRepository.findById((updateServiceRequestDto.getCategoryId()))
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         existingService.setName(updateServiceRequestDto.getName());
