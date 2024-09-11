@@ -16,7 +16,7 @@ services:
       retries: 3
 
   cleaninghub-serve:
-    build: D:\Danh\Lessons\Exe201c\CleaningHub\cleaninghub
+    build: E:\semester8\EXE202\CleaningHub\cleaninghub
     ports:
       - "8080:8080"
     environment:
