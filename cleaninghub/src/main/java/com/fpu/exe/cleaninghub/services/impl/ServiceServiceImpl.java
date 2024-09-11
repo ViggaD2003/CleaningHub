@@ -3,6 +3,7 @@ package com.fpu.exe.cleaninghub.services.impl;
 import com.fpu.exe.cleaninghub.dto.request.CreateServiceRequestDto;
 import com.fpu.exe.cleaninghub.dto.request.UpdateServiceRequestDto;
 import com.fpu.exe.cleaninghub.dto.response.CreateServiceResponseDto;
+import com.fpu.exe.cleaninghub.dto.response.ServiceDetailResponseDTO;
 import com.fpu.exe.cleaninghub.dto.response.ServiceResponseDto;
 import com.fpu.exe.cleaninghub.entity.Category;
 import com.fpu.exe.cleaninghub.repository.CategoryRepository;
@@ -47,14 +48,14 @@ public class ServiceServiceImpl implements ServiceService {
                 .createDate(LocalDate.now())
                 .category(category)
                 .build();
-        com.fpu.exe.cleaninghub.entity.Service savedService = serviceRepository.save(service);
+        serviceRepository.save(service);
         CreateServiceResponseDto responseDto = new CreateServiceResponseDto();
-        responseDto.setId(savedService.getId());
-        responseDto.setName(savedService.getName());
-        responseDto.setDescription(savedService.getDescription());
-        responseDto.setBasePrice(savedService.getBasePrice());
-        responseDto.setStatus(savedService.getStatus());
-        responseDto.setCategoryName(savedService.getCategory().getName());
+        responseDto.setId(service.getId());
+        responseDto.setName(service.getName());
+        responseDto.setDescription(service.getDescription());
+        responseDto.setBasePrice(service.getBasePrice());
+        responseDto.setStatus(service.getStatus());
+        responseDto.setCategoryName(service.getCategory().getName());
         return responseDto;
     }
 
@@ -81,6 +82,20 @@ public class ServiceServiceImpl implements ServiceService {
         responseDto.setStatus(updatedService.getStatus());
         responseDto.setCategoryName(updatedService.getCategory().getName());
         return responseDto;
+    }
+
+    @Override
+    public ServiceDetailResponseDTO getServiceDetailById(Integer id) {
+        com.fpu.exe.cleaninghub.entity.Service service = serviceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Service is not existed"));
+        return ServiceDetailResponseDTO.builder()
+                .id(service.getId())
+                .basePrice(service.getBasePrice())
+                .category(service.getCategory())
+                .status(service.getStatus())
+                .name(service.getName())
+                .description(service.getDescription())
+                .build();
     }
 
     @Override
