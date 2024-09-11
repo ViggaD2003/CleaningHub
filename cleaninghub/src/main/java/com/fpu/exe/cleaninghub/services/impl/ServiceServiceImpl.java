@@ -9,6 +9,7 @@ import com.fpu.exe.cleaninghub.entity.Category;
 import com.fpu.exe.cleaninghub.repository.CategoryRepository;
 import com.fpu.exe.cleaninghub.repository.ServiceRepository;
 import com.fpu.exe.cleaninghub.services.interfc.ServiceService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.auditing.CurrentDateTimeProvider;
 import org.springframework.data.domain.Page;
@@ -24,6 +25,8 @@ public class ServiceServiceImpl implements ServiceService {
     private ServiceRepository serviceRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private ModelMapper modelMapper;
     @Override
     public Page<ServiceResponseDto> getAvailableServices(String searchTerm, int pageIndex, int pageSize) {
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
@@ -88,14 +91,7 @@ public class ServiceServiceImpl implements ServiceService {
     public ServiceDetailResponseDTO getServiceDetailById(Integer id) {
         com.fpu.exe.cleaninghub.entity.Service service = serviceRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Service is not existed"));
-        return ServiceDetailResponseDTO.builder()
-                .id(service.getId())
-                .basePrice(service.getBasePrice())
-                .category(service.getCategory())
-                .status(service.getStatus())
-                .name(service.getName())
-                .description(service.getDescription())
-                .build();
+        return modelMapper.map(service, ServiceDetailResponseDTO.class);
     }
 
     @Override
