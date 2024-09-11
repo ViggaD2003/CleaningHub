@@ -13,5 +13,4 @@ public class CreateServiceRequestDto {
     private Double basePrice;
     private String status;
     private Integer categoryId;
-    private LocalDate createDate;
 }
