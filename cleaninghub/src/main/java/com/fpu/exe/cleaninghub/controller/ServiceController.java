@@ -25,16 +25,24 @@ public class ServiceController {
         return ResponseEntity.ok(services);
     }
     @PostMapping
-    public ResponseEntity<CreateServiceResponseDto> createService (@RequestBody CreateServiceRequestDto serviceRequestDto){
-        CreateServiceResponseDto response = serviceService.createService(serviceRequestDto);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> createService (@RequestBody CreateServiceRequestDto serviceRequestDto){
+        try{
+            CreateServiceResponseDto response = serviceService.createService(serviceRequestDto);
+            return ResponseEntity.ok(response);
+        }catch (Exception e){
+            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
+        }
     }
     @PutMapping("{id}")
-    public ResponseEntity<CreateServiceResponseDto> updateService(
+    public ResponseEntity<?> updateService(
             @PathVariable Integer id,
             @RequestBody UpdateServiceRequestDto updateServiceRequestDto) {
-        CreateServiceResponseDto updatedService = serviceService.updateService(id, updateServiceRequestDto);
-        return ResponseEntity.ok(updatedService);
+        try{
+            CreateServiceResponseDto updatedService = serviceService.updateService(id, updateServiceRequestDto);
+            return ResponseEntity.ok(updatedService);
+        }catch (Exception e){
+            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
+        }
     }
     @GetMapping("{id}")
     public ResponseEntity<?> getDetailService(@PathVariable Integer id){
