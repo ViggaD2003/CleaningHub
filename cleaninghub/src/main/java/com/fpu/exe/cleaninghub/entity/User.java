@@ -2,6 +2,7 @@ package com.fpu.exe.cleaninghub.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fpu.exe.cleaninghub.token.MailToken;
 import com.fpu.exe.cleaninghub.token.Token;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,9 @@ public class User implements UserDetails {
     @Column(name = "status")
     @JsonIgnore
     private Boolean status;
+    @Column(name = "accountLocked")
+    @JsonIgnore
+    private Boolean accountLocked;
     @Column(name = "gender")
     private Boolean gender;
     @Column(name = "dob")
@@ -102,6 +106,10 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Token> tokens;
 
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<MailToken> mailToken;
+
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
     private List<Booking> booking;
@@ -133,7 +141,7 @@ public class User implements UserDetails {
     @Override
     @JsonIgnore
     public boolean isAccountNonLocked() {
-        return true;
+        return accountLocked;
     }
 
     @Override
@@ -145,8 +153,12 @@ public class User implements UserDetails {
     @Override
     @JsonIgnore
     public boolean isEnabled() {
-        return true;
+        return status;
     }
 
+
+    public String getFullName() {
+        return firstName + "" + lastName;
+    }
 
 }

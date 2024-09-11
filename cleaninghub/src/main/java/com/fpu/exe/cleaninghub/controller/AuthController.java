@@ -8,8 +8,10 @@
     import com.fpu.exe.cleaninghub.dto.response.JwtAuthenticationResponse;
     import com.fpu.exe.cleaninghub.services.interfc.AuthenticationService;
     import com.fpu.exe.cleaninghub.utils.wapper.API;
+    import jakarta.mail.MessagingException;
     import jakarta.servlet.http.HttpServletRequest;
     import jakarta.servlet.http.HttpServletResponse;
+    import jakarta.validation.Valid;
     import lombok.RequiredArgsConstructor;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.http.HttpStatus;
@@ -29,12 +31,22 @@
 
 
         @PostMapping("/signup")
-        public ResponseEntity<String> signup(@RequestBody SignUpRequest signUpRequest){
+        public ResponseEntity<String> signup(@RequestBody @Valid SignUpRequest signUpRequest) throws MessagingException {
+            authenticationService.signUp(signUpRequest);
             return ResponseEntity.ok("create successfully");
         }
 
+
+        @GetMapping("/activate-account")
+        public void confirm(
+                @RequestParam String token
+        ) throws MessagingException {
+            authenticationService.activateAccount(token);
+        }
+
+
         @PostMapping("/signin")
-        public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody SignInRequest signInRequest){
+        public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody @Valid SignInRequest signInRequest){
 
             return ResponseEntity.ok(authenticationService.signIn(signInRequest));
         }
