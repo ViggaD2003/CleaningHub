@@ -64,6 +64,7 @@ public class CleaninghubApplication implements CommandLineRunner {
 			user.setRole(role);
 			user.setStatus(true);
 			user.setPassword(new BCryptPasswordEncoder().encode("123"));
+			user.setStatus(true);
 			userRepository.save(user);
 		}
 	}
