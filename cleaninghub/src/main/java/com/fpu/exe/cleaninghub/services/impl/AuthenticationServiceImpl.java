@@ -5,20 +5,26 @@ import com.fpu.exe.cleaninghub.dto.request.SignInRequest;
 import com.fpu.exe.cleaninghub.dto.request.SignUpRequest;
 import com.fpu.exe.cleaninghub.dto.request.UserProfileDTO;
 import com.fpu.exe.cleaninghub.dto.response.JwtAuthenticationResponse;
+import com.fpu.exe.cleaninghub.email.EmailService;
+import com.fpu.exe.cleaninghub.email.EmailTemplateName;
 import com.fpu.exe.cleaninghub.entity.Role;
 import com.fpu.exe.cleaninghub.entity.User;
+import com.fpu.exe.cleaninghub.repository.MailTokenRepository;
 import com.fpu.exe.cleaninghub.repository.RoleRepository;
 import com.fpu.exe.cleaninghub.repository.TokenRepository;
 import com.fpu.exe.cleaninghub.repository.UserRepository;
 import com.fpu.exe.cleaninghub.services.interfc.AuthenticationService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
+import com.fpu.exe.cleaninghub.token.MailToken;
 import com.fpu.exe.cleaninghub.token.Token;
 import com.fpu.exe.cleaninghub.token.TokenType;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +35,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import java.io.IOException;
@@ -42,8 +51,6 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
-    private final UserRepository userRepo;
-    @Autowired
     private final PasswordEncoder passwordEncoder;
     @Autowired
     private final AuthenticationManager authenticationManager;
@@ -53,18 +60,29 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RoleRepository roleRepo;
     @Autowired
     private final TokenRepository tokenRepository;
+    @Autowired
+    private EmailService emailService;
+    @Value("${application.mailing.frontend.activation-url}")
+    private String activationUrl;
+    @Autowired
+    private final MailTokenRepository mailTokenRepository;
+    @Autowired
+    private UserRepository userRepository;
 
 
     @Override
-    public void signUp(SignUpRequest signUpRequest) {
+    public void signUp(SignUpRequest signUpRequest) throws MessagingException{
         User user = new User();
         user.setEmail(signUpRequest.getEmail());
-        user.setPassword(signUpRequest.getPassword());
+        user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setFirstName(signUpRequest.getFirstName());
         user.setLastName(signUpRequest.getLastName());
         Role role = roleRepo.findById(signUpRequest.getRoleId()).orElseThrow(() -> new IllegalArgumentException("Role not found !"));
         user.setRole(role);
-        user.setStatus(true);
+        user.setStatus(false);
+        user.setAccountLocked(false);
+        userRepository.save(user);
+        sendValidationEmail(user);
     }
 
     private void saveUserToken(User user, String jwtToken, String jwtRefreshToken) {
@@ -100,7 +118,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public JwtAuthenticationResponse signIn(SignInRequest signInRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword()));
-        var user = userRepo.findByEmail(signInRequest.getEmail()).orElseThrow(() -> new UsernameNotFoundException("Email not found !"));
+        var user = userRepository.findByEmail(signInRequest.getEmail()).orElseThrow(() -> new UsernameNotFoundException("Email not found !"));
         if (!user.getStatus()) {
             throw new IllegalArgumentException("User is not active !");
         }
@@ -138,7 +156,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         final Token currentRefreshToken = tokenRepository.findByRefreshToken(refreshToken).orElse(null);
 
         if (email != null && currentRefreshToken != null) {
-            var user = this.userRepo.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Email is not found !"));
+            var user = this.userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Email is not found !"));
             if ((jwtService.isTokenValid(refreshToken, user)) &&
                     !currentRefreshToken.isRevoked() && !currentRefreshToken.isExpired()) {
                 var accessToken = jwtService.generateToken(user);
@@ -186,7 +204,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No JWT token is valid !");
         }
         String email = jwtService.extractUsername(token);
-        var user = userRepo.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Not found user !"));
+        var user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Not found user !"));
         if (user == null || !jwtService.isTokenValid(token, user) || accessToken.isRevoked() || accessToken.isExpired()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("JWT token has expired and revoked");
         }
@@ -195,7 +213,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public UserProfileDTO updateUserInfo(Integer id, UserProfileDTO userProfileDTO) {
-        User user = userRepo.findById(id).orElse(null);
+        User user = userRepository.findById(id).orElse(null);
         if (user != null) {
             user.setLastName(userProfileDTO.getLastName());
             user.setFirstName(userProfileDTO.getFirstName());
@@ -204,7 +222,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             user.setDob(userProfileDTO.getDob());
             user.setGender(userProfileDTO.getGender());
 
-            User userResponse = userRepo.save(user);
+            User userResponse = userRepository.save(user);
             return mapToUserProfileDto(userResponse);
         } else {
             return null;
@@ -227,7 +245,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         JwtAuthenticationResponse res = new JwtAuthenticationResponse();
         if (userDetails != null) {
             String email = userDetails.getUsername();
-            User user = userRepo.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("not found"));
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("not found"));
             if (user != null) {
                 Token token = tokenRepository.findAllValidTokensByUser2((long) user.getId());
                 res.setToken(token.getToken());
@@ -245,7 +263,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public JwtAuthenticationResponse signInGoogle() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
-        Optional<User> userOptional = userRepo.findByEmail(email);
+        Optional<User> userOptional = userRepository.findByEmail(email);
 
         User user = userOptional.orElseThrow(() -> new IllegalArgumentException("not found"));
         List<Token> listToken = tokenRepository.findAllValidTokensByUser((long) user.getId());
@@ -258,5 +276,67 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .token(token.getToken())
                 .refreshToken(token.getRefreshToken())
                 .build();
+    }
+
+    @Override
+    public void activateAccount(String token) throws MessagingException {
+        MailToken mailToken = mailTokenRepository.findByToken(token)
+        .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        if(LocalDateTime.now().isAfter(mailToken.getExpiresAt())){
+            sendValidationEmail(mailToken.getUser());
+            throw new RuntimeException("Activation token has expired. A new token has been send to the same email address");
+        }
+
+        var user =  userRepository.findById(mailToken.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        user.setStatus(true);
+        user.setAccountLocked(true);
+        userRepository.save(user);
+
+        mailToken.setValidatedAt(LocalDateTime.now());
+        mailTokenRepository.save(mailToken);
+    }
+
+
+    private String generateAndSaveActivationToken(User user) {
+        // Generate a token
+        String generatedToken = generateActivationCode(6);
+        var token = MailToken.builder()
+                .token(generatedToken)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .user(user)
+                .build();
+        mailTokenRepository.save(token);
+
+        return generatedToken;
+    }
+
+    private void sendValidationEmail(User user) throws MessagingException {
+        var newToken = generateAndSaveActivationToken(user);
+
+        emailService.sendEmail(
+                user.getEmail(),
+                user.getFullName(),
+                EmailTemplateName.ACTIVATE_ACCOUNT,
+                activationUrl,
+                newToken,
+                "Account activation"
+        );
+    }
+
+    private String generateActivationCode(int length) {
+        String characters = "0123456789";
+        StringBuilder codeBuilder = new StringBuilder();
+
+        SecureRandom secureRandom = new SecureRandom();
+
+        for (int i = 0; i < length; i++) {
+            int randomIndex = secureRandom.nextInt(characters.length());
+            codeBuilder.append(characters.charAt(randomIndex));
+        }
+
+        return codeBuilder.toString();
     }
 }
