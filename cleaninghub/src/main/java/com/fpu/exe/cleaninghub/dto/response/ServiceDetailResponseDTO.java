@@ -3,9 +3,10 @@ package com.fpu.exe.cleaninghub.dto.response;
 import com.fpu.exe.cleaninghub.entity.Category;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Builder
+@NoArgsConstructor
 public class ServiceDetailResponseDTO {
     private Integer id;
     private String name;
