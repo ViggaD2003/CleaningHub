@@ -5,8 +5,10 @@ import com.fpu.exe.cleaninghub.dto.request.UpdateServiceRequestDto;
 import com.fpu.exe.cleaninghub.dto.response.CreateServiceResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.ServiceResponseDto;
 import com.fpu.exe.cleaninghub.services.interfc.ServiceService;
+import com.fpu.exe.cleaninghub.utils.wapper.API;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +38,11 @@ public class ServiceController {
     }
     @GetMapping("{id}")
     public ResponseEntity<?> getDetailService(@PathVariable Integer id){
-        return ResponseEntity.ok(serviceService.getServiceDetailById(id));
+        try{
+            return ResponseEntity.ok(serviceService.getServiceDetailById(id));
+        }catch (Exception e){
+            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong!!", e.getMessage()));
+        }
     }
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteService(@PathVariable Integer id) {
