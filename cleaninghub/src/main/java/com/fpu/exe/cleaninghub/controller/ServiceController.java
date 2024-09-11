@@ -34,6 +34,10 @@ public class ServiceController {
         CreateServiceResponseDto updatedService = serviceService.updateService(id, updateServiceRequestDto);
         return ResponseEntity.ok(updatedService);
     }
+    @GetMapping("{id}")
+    public ResponseEntity<?> getDetailService(@PathVariable Integer id){
+        return ResponseEntity.ok(serviceService.getServiceDetailById(id));
+    }
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteService(@PathVariable Integer id) {
         serviceService.deleteService(id);
