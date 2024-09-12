@@ -12,14 +12,11 @@ import com.fpu.exe.cleaninghub.repository.ServiceRepository;
 import com.fpu.exe.cleaninghub.services.interfc.ServiceService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.auditing.CurrentDateTimeProvider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Service
 public class ServiceServiceImpl implements ServiceService {
