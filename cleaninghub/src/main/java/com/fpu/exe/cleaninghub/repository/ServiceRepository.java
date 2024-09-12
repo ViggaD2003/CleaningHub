@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface ServiceRepository extends JpaRepository<Service,Integer> {
 
-    @Query("SELECT s FROM Service s WHERE s.status = 'Available' AND (s.name LIKE %:searchTerm% OR s.description LIKE %:searchTerm%)")
+    @Query("SELECT s FROM Service s WHERE s.status = 'active' AND (s.name LIKE %:searchTerm% OR s.description LIKE %:searchTerm%)")
     Page<Service> GetAllService(String searchTerm, Pageable pageable);
     @EntityGraph(attributePaths = {"category"})
     Optional<Service> findById(int id);

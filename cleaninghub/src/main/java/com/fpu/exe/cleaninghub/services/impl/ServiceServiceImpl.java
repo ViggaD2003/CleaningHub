@@ -6,6 +6,7 @@ import com.fpu.exe.cleaninghub.dto.response.CreateServiceResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.ServiceDetailResponseDTO;
 import com.fpu.exe.cleaninghub.dto.response.ServiceResponseDto;
 import com.fpu.exe.cleaninghub.entity.Category;
+import com.fpu.exe.cleaninghub.enums.Status;
 import com.fpu.exe.cleaninghub.repository.CategoryRepository;
 import com.fpu.exe.cleaninghub.repository.ServiceRepository;
 import com.fpu.exe.cleaninghub.services.interfc.ServiceService;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class ServiceServiceImpl implements ServiceService {
@@ -47,21 +49,16 @@ public class ServiceServiceImpl implements ServiceService {
                 .name(createServiceRequestDto.getName())
                 .description(createServiceRequestDto.getDescription())
                 .basePrice(createServiceRequestDto.getBasePrice())
-                .status(createServiceRequestDto.getStatus())
+                .status(Status.Active.name().toLowerCase())
                 .createDate(LocalDate.now())
                 .category(category)
                 .build();
         serviceRepository.save(service);
         CreateServiceResponseDto responseDto = new CreateServiceResponseDto();
-        responseDto.setId(service.getId());
-        responseDto.setName(service.getName());
-        responseDto.setDescription(service.getDescription());
-        responseDto.setBasePrice(service.getBasePrice());
-        responseDto.setStatus(service.getStatus());
+        modelMapper.map(service, responseDto);
         responseDto.setCategoryName(service.getCategory().getName());
         return responseDto;
     }
-
     @Override
     public CreateServiceResponseDto updateService(Integer serviceId, UpdateServiceRequestDto updateServiceRequestDto) {
         com.fpu.exe.cleaninghub.entity.Service existingService = serviceRepository.findById(serviceId)
@@ -98,7 +95,7 @@ public class ServiceServiceImpl implements ServiceService {
     public void deleteService(Integer serviceId) {
         com.fpu.exe.cleaninghub.entity.Service existingService = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("Service not found"));
-        existingService.setStatus("Deleted");
+        existingService.setStatus(Status.UnActive.name().toLowerCase());
         serviceRepository.save(existingService);
     }
 }

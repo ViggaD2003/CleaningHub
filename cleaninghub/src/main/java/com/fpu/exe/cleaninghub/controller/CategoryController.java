@@ -29,7 +29,7 @@ public class CategoryController {
         }
     }
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable int id, CategoryRequest categoryRequest){
+    public ResponseEntity<?> updateCategory(@PathVariable int id, @RequestBody CategoryRequest categoryRequest){
         try{
             categoryService.updateCategory(id, categoryRequest);
             return ResponseEntity.ok(API.Response.success("Update Category successfully"));
