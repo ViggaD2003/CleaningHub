@@ -2,6 +2,7 @@ package com.fpu.exe.cleaninghub.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Table(name = "add_ons")
+@EntityListeners(AuditingEntityListener.class)
 public class AddOns {
 
     @Id
