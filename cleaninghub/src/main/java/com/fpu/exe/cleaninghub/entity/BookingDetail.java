@@ -37,11 +37,11 @@ public class BookingDetail {
     private Voucher voucher;
 
     @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "booking_id")
+    @OneToOne(mappedBy = "bookingDetail")
     private Booking booking;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "bookingDetail", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-    private List<Payments> payments;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id", referencedColumnName = "id")
+    private Payments payment;
 }

@@ -1,38 +1,45 @@
 package com.fpu.exe.cleaninghub.services.impl;
 
-import com.fpu.exe.cleaninghub.dto.response.BookingDetailResponseDto;
-import com.fpu.exe.cleaninghub.dto.response.BookingResponseDto;
-import com.fpu.exe.cleaninghub.dto.response.PaymentResponseDto;
-import com.fpu.exe.cleaninghub.dto.response.VoucherResponseDto;
-import com.fpu.exe.cleaninghub.entity.Booking;
-import com.fpu.exe.cleaninghub.entity.BookingDetail;
-import com.fpu.exe.cleaninghub.entity.User;
-import com.fpu.exe.cleaninghub.entity.Voucher;
-import com.fpu.exe.cleaninghub.repository.BookingRepository;
-import com.fpu.exe.cleaninghub.repository.TokenRepository;
-import com.fpu.exe.cleaninghub.repository.UserRepository;
+import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequest;
+import com.fpu.exe.cleaninghub.dto.response.*;
+import com.fpu.exe.cleaninghub.entity.*;
+import com.fpu.exe.cleaninghub.repository.*;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
-import com.sun.security.auth.UserPrincipal;
 import jakarta.servlet.http.HttpServletRequest;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+
 
 @Service
 public class BookingServiceImpl implements BookingService {
-    @Autowired
-    private BookingRepository bookingRepository;
     @Autowired
     private TokenRepository tokenRepository;
     @Autowired
     private JWTService jwtService;
     @Autowired
+    private ServiceRepository serviceRepository;
+    @Autowired
+    private DurationRepository durationRepository;
+    @Autowired
+    private VoucherRepository voucherRepository;
+    @Autowired
+    private BookingRepository bookingRepository;
+    @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
+    @Autowired
+    private BookingDetailRepository bookingDetailRepository;
+    @Autowired
+    private ModelMapper modelMapper;
     @Override
     public Page<BookingResponseDto> searchBookings(HttpServletRequest request, String searchTerm, int pageIndex, int pageSize) {
         User currentUser = getCurrentUser(request);
@@ -51,8 +58,8 @@ public class BookingServiceImpl implements BookingService {
         dto.setId(booking.getId());
         dto.setCreateDate(booking.getBookingDate());
         dto.setUpdateDate(booking.getUpdateDate());
-        if(booking.getBookingDetails() != null && !booking.getBookingDetails().isEmpty()){
-            BookingDetail bookingDetail = booking.getBookingDetails().get(0);
+        if(booking.getBookingDetail() != null){
+            BookingDetail bookingDetail = booking.getBookingDetail();
             Voucher voucher = bookingDetail.getVoucher();
             if (voucher != null){
                 VoucherResponseDto voucherDto = new VoucherResponseDto();
@@ -64,14 +71,8 @@ public class BookingServiceImpl implements BookingService {
                 voucherDto.setExpiredDate(voucher.getExpiredDate());
                 dto.setVoucher(voucherDto);
             }
-            List<PaymentResponseDto> paymentDtos = bookingDetail.getPayments().stream().map(payments ->{
-                PaymentResponseDto paymentDto = new PaymentResponseDto();
-                paymentDto.setId(payments.getId());
-                paymentDto.setCreateDate(payments.getCreateDate());
-                paymentDto.setFinalPrice(payments.getFinalPrice());
-                return paymentDto;
-            }).toList();
-            dto.setPayments(paymentDtos);
+            PaymentResponseDto paymentDto = modelMapper.map(bookingDetail.getPayment(), PaymentResponseDto.class);
+            dto.setPayment(paymentDto);
         }
         return dto;
     }
@@ -86,6 +87,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setStaffName(booking.getStaff() != null ? booking.getStaff().getFullName() : null);
         return dto;
     }
+
     public User getCurrentUser(HttpServletRequest request) {
         String token = extractTokenFromHeader(request);
         if (token == null) {
@@ -108,5 +110,91 @@ public class BookingServiceImpl implements BookingService {
             return bearerToken.substring(7); // Remove "Bearer " prefix
         }
         return null;
+    }
+    @Override
+    public CreateBookingResponse createBooking(CreateBookingRequest createBookingRequest) {
+        // Fetch the selected service and duration
+        com.fpu.exe.cleaninghub.entity.Service serviceSelected = serviceRepository
+                .findById(createBookingRequest.getServiceId())
+                .orElseThrow(() -> new RuntimeException("Service not found"));
+
+        Duration durationSelected = durationRepository
+                .findById(createBookingRequest.getDurationId())
+                .orElseThrow(() -> new RuntimeException("Duration not found"));
+
+        // Handle voucher if provided
+        Voucher voucherSelected = null;
+        if (createBookingRequest.getVoucherId() != null) {
+            voucherSelected = voucherRepository
+                    .findById(createBookingRequest.getVoucherId())
+                    .orElseThrow(() -> new RuntimeException("Voucher not found"));
+        }
+
+        // Calculate the final price based on service and duration
+        double finalPrice = calculateFinalPrice(serviceSelected, durationSelected, voucherSelected);
+
+        // Create payment details
+        Payments payment = Payments.builder()
+                .finalPrice(finalPrice)
+                .createDate(LocalDate.now())
+                .build();
+
+        paymentRepository.save(payment);
+
+        // Create booking detail
+        BookingDetail bookingDetail = BookingDetail.builder()
+                .createDate(LocalDate.now())
+                .updateDate(LocalDate.now())
+                .voucher(voucherSelected)
+                .payment(payment)
+                .build();
+
+        bookingDetailRepository.save(bookingDetail);
+
+        // Fetch staff and user
+        User staff = userRepository.findStaffByHighestAverageRating();
+        User user = userRepository.findByEmail(createBookingRequest.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Create and save the booking
+        Booking booking = Booking.builder()
+                .bookingDate(LocalDate.now())
+                .updateDate(LocalDate.now())
+                .bookingDetail(bookingDetail)
+                .service(serviceSelected)
+                .staff(staff)
+                .user(user)
+                .duration(durationSelected)
+                .address(createBookingRequest.getAddress())
+                .build();
+
+        bookingRepository.save(booking);
+
+        // Create and return response
+
+        return CreateBookingResponse.builder()
+                .id(booking.getId())
+                .status(booking.getStatus())
+                .bookingDate(booking.getBookingDate())
+                .updateDate(booking.getUpdateDate())
+                .bookingDetail(modelMapper.map(bookingDetail, BookingDetailResponseDto.class))
+                .service(modelMapper.map(serviceSelected, ServiceDetailResponseDTO.class))
+                .staff(modelMapper.map(staff, UserResponseDTO.class))
+                .user(modelMapper.map(user, UserResponseDTO.class))
+                .duration(modelMapper.map(durationSelected, DurationResponse.class))
+                .address(createBookingRequest.getAddress())
+                .build();
+    }
+
+    private double calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher) {
+        double basePrice = service.getBasePrice();
+        // Example calculation, add your logic here
+        double finalPrice = basePrice;  // You should replace this with actual price calculation logic
+
+        if (voucher != null) {
+            finalPrice -= voucher.getAmount();  // Example discount application
+        }
+
+        return finalPrice;
     }
 }
