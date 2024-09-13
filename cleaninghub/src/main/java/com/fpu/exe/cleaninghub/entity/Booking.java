@@ -42,8 +42,9 @@ public class Booking {
     private String address;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "booking", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-    private List<BookingDetail> bookingDetails;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "booking_detail_id", referencedColumnName = "id")
+    private BookingDetail bookingDetail;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -57,7 +58,7 @@ public class Booking {
     @JoinColumn(name = "service_id")
     private Service service;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "duration_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "duration_id")
     private Duration duration;
 }

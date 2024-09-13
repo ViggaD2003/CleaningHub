@@ -30,8 +30,7 @@ public class Payments {
     private LocalDate createDate;
 
     @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "booking_detail_id")
+    @OneToOne(mappedBy = "payment")
     private BookingDetail bookingDetail;
 
 
