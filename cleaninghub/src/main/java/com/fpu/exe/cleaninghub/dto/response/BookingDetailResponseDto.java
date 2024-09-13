@@ -11,6 +11,6 @@ public class BookingDetailResponseDto {
     private LocalDate createDate;
     private LocalDate updateDate;
     private VoucherResponseDto voucher;
-    private BookingResponseDto booking;
-    private List<PaymentResponseDto> payments;
+//    private BookingResponseDto booking;
+    private PaymentResponseDto payment;
 }

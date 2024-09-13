@@ -3,10 +3,11 @@ package com.fpu.exe.cleaninghub.services.impl;
 import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequest;
 import com.fpu.exe.cleaninghub.dto.response.*;
 import com.fpu.exe.cleaninghub.entity.*;
-import com.fpu.exe.cleaninghub.repository.TokenRepository;
+import com.fpu.exe.cleaninghub.repository.*;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -57,8 +58,8 @@ public class BookingServiceImpl implements BookingService {
         dto.setId(booking.getId());
         dto.setCreateDate(booking.getBookingDate());
         dto.setUpdateDate(booking.getUpdateDate());
-        if(booking.getBookingDetails() != null && !booking.getBookingDetails().isEmpty()){
-            BookingDetail bookingDetail = booking.getBookingDetails().get(0);
+        if(booking.getBookingDetail() != null){
+            BookingDetail bookingDetail = booking.getBookingDetail();
             Voucher voucher = bookingDetail.getVoucher();
             if (voucher != null){
                 VoucherResponseDto voucherDto = new VoucherResponseDto();
@@ -70,14 +71,8 @@ public class BookingServiceImpl implements BookingService {
                 voucherDto.setExpiredDate(voucher.getExpiredDate());
                 dto.setVoucher(voucherDto);
             }
-            List<PaymentResponseDto> paymentDtos = bookingDetail.getPayments().stream().map(payments ->{
-                PaymentResponseDto paymentDto = new PaymentResponseDto();
-                paymentDto.setId(payments.getId());
-                paymentDto.setCreateDate(payments.getCreateDate());
-                paymentDto.setFinalPrice(payments.getFinalPrice());
-                return paymentDto;
-            }).toList();
-            dto.setPayments(paymentDtos);
+            PaymentResponseDto paymentDto = modelMapper.map(bookingDetail.getPayment(), PaymentResponseDto.class);
+            dto.setPayment(paymentDto);
         }
         return dto;
     }
@@ -92,6 +87,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setStaffName(booking.getStaff() != null ? booking.getStaff().getFullName() : null);
         return dto;
     }
+
     public User getCurrentUser(HttpServletRequest request) {
         String token = extractTokenFromHeader(request);
         if (token == null) {
@@ -181,8 +177,8 @@ public class BookingServiceImpl implements BookingService {
                 .status(booking.getStatus())
                 .bookingDate(booking.getBookingDate())
                 .updateDate(booking.getUpdateDate())
-                .bookingDetail(modelMapper.map(bookingDetail, BookingDetailResponse.class))
-                .service(modelMapper.map(serviceSelected, ServiceResponseDto.class))
+                .bookingDetail(modelMapper.map(bookingDetail, BookingDetailResponseDto.class))
+                .service(modelMapper.map(serviceSelected, ServiceDetailResponseDTO.class))
                 .staff(modelMapper.map(staff, UserResponseDTO.class))
                 .user(modelMapper.map(user, UserResponseDTO.class))
                 .duration(modelMapper.map(durationSelected, DurationResponse.class))

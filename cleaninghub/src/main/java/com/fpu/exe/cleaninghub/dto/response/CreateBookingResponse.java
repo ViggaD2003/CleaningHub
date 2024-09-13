@@ -31,13 +31,13 @@ public class CreateBookingResponse {
 
     private String address;
 
-    private BookingDetailResponse bookingDetail;
+    private BookingDetailResponseDto bookingDetail;
 
     private UserResponseDTO user;
 
     private UserResponseDTO staff;
 
-    private ServiceResponseDto service;
+    private ServiceDetailResponseDTO service;
 
     private DurationResponse duration;
 }
