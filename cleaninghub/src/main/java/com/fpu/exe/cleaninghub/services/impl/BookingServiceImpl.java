@@ -1,8 +1,11 @@
 package com.fpu.exe.cleaninghub.services.impl;
 
-import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequest;
+import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
 import com.fpu.exe.cleaninghub.dto.response.*;
 import com.fpu.exe.cleaninghub.entity.*;
+import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
+import com.fpu.exe.cleaninghub.enums.Payment.PaymentMethod;
+import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
 import com.fpu.exe.cleaninghub.repository.*;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
@@ -13,9 +16,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 
 @Service
@@ -56,8 +62,8 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingRepository.findByIdAndUserId(bookingId, userId).orElseThrow(() -> new IllegalArgumentException("Booking not found or you do not have access to this booking"));
         BookingDetailResponseDto dto = new BookingDetailResponseDto();
         dto.setId(booking.getId());
-        dto.setCreateDate(booking.getBookingDate());
-        dto.setUpdateDate(booking.getUpdateDate());
+        dto.setCreatedDate(booking.getCreatedDate());
+        dto.setUpdatedDate(booking.getUpdatedDate());
         if(booking.getBookingDetail() != null){
             BookingDetail bookingDetail = booking.getBookingDetail();
             Voucher voucher = bookingDetail.getVoucher();
@@ -81,7 +87,7 @@ public class BookingServiceImpl implements BookingService {
         BookingResponseDto dto = new BookingResponseDto();
         dto.setId(booking.getId());
         dto.setStatus(booking.getStatus());
-        dto.setBookingDate(booking.getBookingDate());
+        dto.setBookingDate(booking.getCreatedDate());
         dto.setAddress(booking.getAddress());
         dto.setServiceName(booking.getService().getName());
         dto.setStaffName(booking.getStaff() != null ? booking.getStaff().getFullName() : null);
@@ -111,40 +117,55 @@ public class BookingServiceImpl implements BookingService {
         }
         return null;
     }
+    @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     @Override
-    public CreateBookingResponse createBooking(CreateBookingRequest createBookingRequest) {
+    public CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO) {
         // Fetch the selected service and duration
         com.fpu.exe.cleaninghub.entity.Service serviceSelected = serviceRepository
-                .findById(createBookingRequest.getServiceId())
+                .findById(createBookingRequestDTO.getServiceId())
                 .orElseThrow(() -> new RuntimeException("Service not found"));
 
         Duration durationSelected = durationRepository
-                .findById(createBookingRequest.getDurationId())
+                .findByIdAndServiceId(createBookingRequestDTO.getDurationId(), serviceSelected.getId())
                 .orElseThrow(() -> new RuntimeException("Duration not found"));
 
         // Handle voucher if provided
         Voucher voucherSelected = null;
-        if (createBookingRequest.getVoucherId() != null) {
+        if (createBookingRequestDTO.getVoucherId() != null) {
             voucherSelected = voucherRepository
-                    .findById(createBookingRequest.getVoucherId())
+                    .findById(createBookingRequestDTO.getVoucherId())
                     .orElseThrow(() -> new RuntimeException("Voucher not found"));
         }
 
-        // Calculate the final price based on service and duration
-        double finalPrice = calculateFinalPrice(serviceSelected, durationSelected, voucherSelected);
+        // Calculate the final price based on service, duration, and voucher
+        BigDecimal finalPrice = calculateFinalPrice(serviceSelected, durationSelected, voucherSelected);
+
+        // Determine payment status based on payment method
+        PaymentStatus paymentStatus;
+        String transactionId = null; // For online payments, we'll set this later
+
+        if (createBookingRequestDTO.getPaymentMethod() == PaymentMethod.CASH) {
+            // Cash payments are completed after the service is done
+            paymentStatus = PaymentStatus.PENDING; // Pending until the service is completed
+        } else {
+            // For online banking (e.g., MOMO, VNPAY, PAYOS), we might set it to pending until the bank confirms the payment
+            paymentStatus = PaymentStatus.PENDING;
+            // Optionally, generate or store transaction ID if your system works with external payment gateways
+//            transactionId = generateTransactionId(createBookingRequestDTO.getPaymentMethod());
+        }
 
         // Create payment details
         Payments payment = Payments.builder()
                 .finalPrice(finalPrice)
-                .createDate(LocalDate.now())
+                .paymentMethod(createBookingRequestDTO.getPaymentMethod())
+                .paymentStatus(paymentStatus)
+                .transactionId(transactionId) // Only relevant for online payments
                 .build();
 
         paymentRepository.save(payment);
 
         // Create booking detail
         BookingDetail bookingDetail = BookingDetail.builder()
-                .createDate(LocalDate.now())
-                .updateDate(LocalDate.now())
                 .voucher(voucherSelected)
                 .payment(payment)
                 .build();
@@ -153,48 +174,70 @@ public class BookingServiceImpl implements BookingService {
 
         // Fetch staff and user
         User staff = userRepository.findStaffByHighestAverageRating();
-        User user = userRepository.findByEmail(createBookingRequest.getEmail())
+        User user = userRepository.findByEmail(createBookingRequestDTO.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Create and save the booking
+        Address address = Address.builder()
+                .street(createBookingRequestDTO.getAddress().getStreet())
+                .city(createBookingRequestDTO.getAddress().getCity())
+                .state(createBookingRequestDTO.getAddress().getState())
+                .zipCode(createBookingRequestDTO.getAddress().getZipCode())
+                .country(createBookingRequestDTO.getAddress().getCountry())
+                .build();
+
         Booking booking = Booking.builder()
-                .bookingDate(LocalDate.now())
-                .updateDate(LocalDate.now())
                 .bookingDetail(bookingDetail)
                 .service(serviceSelected)
                 .staff(staff)
                 .user(user)
                 .duration(durationSelected)
-                .address(createBookingRequest.getAddress())
+                .address(address)
+                .status(BookingStatus.AWAITING_CONFIRMATION)
                 .build();
 
         bookingRepository.save(booking);
 
-        // Create and return response
-
-        return CreateBookingResponse.builder()
+        // Create and return the final response
+        return CreateBookingResponseDTO.builder()
                 .id(booking.getId())
                 .status(booking.getStatus())
-                .bookingDate(booking.getBookingDate())
-                .updateDate(booking.getUpdateDate())
+                .address(AddressResponseDTO.builder()
+                        .street(address.getStreet())
+                        .city(address.getCity())
+                        .state(address.getState())
+                        .zipCode(address.getZipCode())
+                        .country(address.getCountry())
+                        .build())
                 .bookingDetail(modelMapper.map(bookingDetail, BookingDetailResponseDto.class))
                 .service(modelMapper.map(serviceSelected, ServiceDetailResponseDTO.class))
                 .staff(modelMapper.map(staff, UserResponseDTO.class))
                 .user(modelMapper.map(user, UserResponseDTO.class))
-                .duration(modelMapper.map(durationSelected, DurationResponse.class))
-                .address(createBookingRequest.getAddress())
+                .duration(modelMapper.map(durationSelected, DurationResponseDTO.class))
+                .createdDate(booking.getCreatedDate())
+                .updatedDate(booking.getUpdatedDate())
                 .build();
     }
 
-    private double calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher) {
-        double basePrice = service.getBasePrice();
-        // Example calculation, add your logic here
-        double finalPrice = basePrice;  // You should replace this with actual price calculation logic
+    private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher) {
+        // Convert the base price to BigDecimal
+        BigDecimal basePrice = BigDecimal.valueOf(service.getBasePrice());
 
+        // Initialize finalPrice with basePrice
+        BigDecimal finalPrice = basePrice;
+
+        // Apply voucher discount if applicable
         if (voucher != null) {
-            finalPrice -= voucher.getAmount();  // Example discount application
+            BigDecimal voucherAmount = BigDecimal.valueOf(voucher.getAmount());
+            finalPrice = finalPrice.subtract(voucherAmount);  // Subtract the voucher amount
         }
 
-        return finalPrice;
+        // Ensure the final price is non-negative and round to 2 decimal places
+        if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
+            finalPrice = BigDecimal.ZERO;
+        }
+
+        // Round the final price to 2 decimal places (for currency)
+        return finalPrice.setScale(2, RoundingMode.HALF_UP);
     }
 }
