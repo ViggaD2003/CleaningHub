@@ -1,7 +1,7 @@
 package com.fpu.exe.cleaninghub.controller;
 
-import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequest;
-import com.fpu.exe.cleaninghub.dto.response.CreateBookingResponse;
+import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
+import com.fpu.exe.cleaninghub.dto.response.CreateBookingResponseDTO;
 import com.fpu.exe.cleaninghub.dto.response.BookingDetailResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.BookingResponseDto;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
@@ -51,10 +51,10 @@ public class BookingController {
         }
     }
     @PostMapping
-    public ResponseEntity<?> CreateBooking(@RequestBody CreateBookingRequest createBookingRequest){
+    public ResponseEntity<?> CreateBooking(@RequestBody CreateBookingRequestDTO createBookingRequestDTO){
         try{
-            CreateBookingResponse response = bookingService.createBooking(createBookingRequest);
-            return ResponseEntity.ok(response);
+            CreateBookingResponseDTO response = bookingService.createBooking(createBookingRequestDTO);
+            return ResponseEntity.ok(API.Response.success(response));
         }catch (Exception e){
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
         }
