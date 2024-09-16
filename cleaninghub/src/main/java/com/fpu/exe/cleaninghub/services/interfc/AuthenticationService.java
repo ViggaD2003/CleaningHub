@@ -29,4 +29,6 @@ public interface AuthenticationService {
 
     void activateAccount(String token) throws MessagingException ;
 
+    void updateAvatar(String urlImg);
+
 }
