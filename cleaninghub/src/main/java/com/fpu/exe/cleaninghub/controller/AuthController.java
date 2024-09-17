@@ -18,6 +18,8 @@
     import org.springframework.http.ResponseEntity;
     import org.springframework.security.core.Authentication;
     import org.springframework.web.bind.annotation.*;
+    import org.springframework.web.multipart.MultipartFile;
+
     import java.io.IOException;
 
     @RestController
@@ -86,5 +88,11 @@
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update user profile information");
             }
+        }
+
+            @PutMapping("/update/img")
+        public ResponseEntity<Object> updateUserImage(@RequestBody String urlImg){
+            authenticationService.updateAvatar(urlImg);
+            return ResponseEntity.ok("update successfully");
         }
     }

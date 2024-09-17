@@ -213,8 +213,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public UserProfileDTO updateUserInfo(Integer id, UserProfileDTO userProfileDTO) {
-        User user = userRepository.findById(id).orElse(null);
+//        User user = userRepository.findById(id).orElse(null);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email;
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        email = userDetails.getUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Not found user !"));
+
         if (user != null) {
+            user.setId(userProfileDTO.getId());
             user.setLastName(userProfileDTO.getLastName());
             user.setFirstName(userProfileDTO.getFirstName());
             user.setPhoneNumber(userProfileDTO.getPhoneNumber());
@@ -231,6 +238,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private UserProfileDTO mapToUserProfileDto(User user) {
         UserProfileDTO userProfileDto = new UserProfileDTO();
+        userProfileDto.setId(user.getId());
         userProfileDto.setFirstName(user.getFirstName());
         userProfileDto.setLastName(user.getLastName());
         userProfileDto.setGender(user.getGender());
@@ -296,6 +304,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         mailToken.setValidatedAt(LocalDateTime.now());
         mailTokenRepository.save(mailToken);
+    }
+
+    @Override
+    public void updateAvatar(String urlImg) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("not found"));
+        if(user != null){
+            urlImg = urlImg.replace("\"", "").trim();
+            user.setImg(urlImg);
+            userRepository.save(user);
+        }
     }
 
 

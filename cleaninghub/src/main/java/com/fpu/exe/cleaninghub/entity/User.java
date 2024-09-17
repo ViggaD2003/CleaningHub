@@ -58,6 +58,9 @@ public class User implements UserDetails {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "img")
+    private String img;
+
     @Column(name = "average_rating")
     private Double averageRating = 0.0;
 
@@ -109,6 +112,7 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<MailToken> mailToken;
+
 
     @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)

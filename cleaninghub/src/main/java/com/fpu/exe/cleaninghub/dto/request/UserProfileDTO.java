@@ -12,6 +12,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Data
 public class UserProfileDTO {
+    private Integer id;
     private Boolean gender;
     private Date dob;
     private String firstName;
