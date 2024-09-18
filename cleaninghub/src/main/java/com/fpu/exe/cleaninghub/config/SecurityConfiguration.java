@@ -42,12 +42,15 @@ public class SecurityConfiguration {
     @Lazy
     private UserService userService;
 
-    //    @Autowired
+    @Autowired
     private final CustomerOAuth2UserService customOAuth2UserService;
     @Autowired
     private final LogoutService logoutHandler;
     @Autowired
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
+    @Autowired
+    private BeanConfig beanConfig;
 
     @Autowired
     public void setJwtAuthenticationFilter(@Lazy JWTAuthenticationFilter jwtAuthenticationFilter, @Lazy UserService userService) {
@@ -79,7 +82,7 @@ public class SecurityConfiguration {
                 )
                 .exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler)
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .authenticationProvider(authenticationProvider())
+                .authenticationProvider(beanConfig.authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> logout.logoutUrl("/api/v1/auth/logout")
                         .addLogoutHandler(logoutHandler)
@@ -90,37 +93,10 @@ public class SecurityConfiguration {
                         .defaultSuccessUrl("/api/v1/auth/signInGoogle", true));
 
         http.exceptionHandling(exception -> exception
-                .authenticationEntryPoint(authenticationEntryPoint())
+                .authenticationEntryPoint(beanConfig.authenticationEntryPoint())
         );
         return http.build();
     }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userService.userDetailsService());
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
-    }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
-
-    private AuthenticationEntryPoint authenticationEntryPoint() {
-        return new HttpStatusEntryPoint(HttpStatus.FORBIDDEN);
-    }
-
-
-    @Bean
-    public AuditorAware<Integer> auditorAware() {
-        return new ApplicationAuditing();
-    }
 }
