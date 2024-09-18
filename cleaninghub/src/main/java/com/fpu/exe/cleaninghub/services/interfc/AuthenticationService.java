@@ -1,9 +1,6 @@
 package com.fpu.exe.cleaninghub.services.interfc;
 
-import com.fpu.exe.cleaninghub.dto.request.ChangePasswordRequest;
-import com.fpu.exe.cleaninghub.dto.request.SignInRequest;
-import com.fpu.exe.cleaninghub.dto.request.SignUpRequest;
-import com.fpu.exe.cleaninghub.dto.request.UserProfileDTO;
+import com.fpu.exe.cleaninghub.dto.request.*;
 import com.fpu.exe.cleaninghub.dto.response.JwtAuthenticationResponse;
 import com.fpu.exe.cleaninghub.entity.User;
 import jakarta.mail.MessagingException;
@@ -40,8 +37,7 @@ public interface AuthenticationService {
 
 
 
-    User verifyUserAccount(String email, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException;
-    void sendVerificationCodeEmail(User user, String siteUrl) throws MessagingException, UnsupportedEncodingException;
-    Boolean changeForgotPassword(String newPassword, String confirmPassword, String username) throws NotFoundException;
-
+    void verifyUserAccount(String email) throws MessagingException, BadRequestException;
+    void activateChangePassword(String token) throws MessagingException;
+    void changeForgotPassword(String email, ChangeForgotPasswordRequest request) throws MessagingException;
 }

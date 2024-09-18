@@ -2,10 +2,7 @@
 
 
     import com.fpu.exe.cleaninghub.config.LogoutService;
-    import com.fpu.exe.cleaninghub.dto.request.ChangePasswordRequest;
-    import com.fpu.exe.cleaninghub.dto.request.SignInRequest;
-    import com.fpu.exe.cleaninghub.dto.request.SignUpRequest;
-    import com.fpu.exe.cleaninghub.dto.request.UserProfileDTO;
+    import com.fpu.exe.cleaninghub.dto.request.*;
     import com.fpu.exe.cleaninghub.dto.response.JwtAuthenticationResponse;
     import com.fpu.exe.cleaninghub.services.interfc.AuthenticationService;
     import com.fpu.exe.cleaninghub.utils.wapper.API;
@@ -14,6 +11,7 @@
     import jakarta.servlet.http.HttpServletResponse;
     import jakarta.validation.Valid;
     import lombok.RequiredArgsConstructor;
+    import org.apache.coyote.BadRequestException;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.http.HttpStatus;
     import org.springframework.http.ResponseEntity;
@@ -48,6 +46,18 @@
             authenticationService.activateAccount(token);
         }
 
+        @GetMapping("/activate-email")
+        public void confirmEmail( @RequestParam String token
+        ) throws MessagingException {
+            authenticationService.activateChangePassword(token);
+        }
+
+
+        @GetMapping("/verify-email")
+        public void verifyEmail( @RequestParam String email) throws MessagingException, BadRequestException {
+            authenticationService.verifyUserAccount(email);
+        }
+
 
         @PostMapping("/signin")
         public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody @Valid SignInRequest signInRequest){
@@ -58,7 +68,7 @@
         @GetMapping("/signInGoogle")
         public void handleGoogleCallback(HttpServletResponse response) throws IOException {
             JwtAuthenticationResponse accessToken = authenticationService.signInGoogle();
-            response.sendRedirect("http://localhost:5173/login-success?token=" + accessToken.getToken() + "&refreshToken=" + accessToken.getRefreshToken());
+            response.sendRedirect("http://localhost:5173/login-success?token=" + accessToken.getToken() + "&refresh_token=" + accessToken.getRefreshToken());
         }
 
         @PostMapping("/refresh")
@@ -102,6 +112,15 @@
         @PatchMapping("/change-password")
         public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, Principal connectedUser){
             authenticationService.changePassword(request, connectedUser);
+            return ResponseEntity.ok("change successfully");
+        }
+
+
+
+
+        @PatchMapping("/change-forgot-password")
+        public ResponseEntity<?> changeForgotPassword(@RequestBody ChangeForgotPasswordRequest request, String email) throws MessagingException {
+            authenticationService.changeForgotPassword(email, request);
             return ResponseEntity.ok("change successfully");
         }
     }

@@ -1,10 +1,7 @@
 package com.fpu.exe.cleaninghub.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fpu.exe.cleaninghub.dto.request.ChangePasswordRequest;
-import com.fpu.exe.cleaninghub.dto.request.SignInRequest;
-import com.fpu.exe.cleaninghub.dto.request.SignUpRequest;
-import com.fpu.exe.cleaninghub.dto.request.UserProfileDTO;
+import com.fpu.exe.cleaninghub.dto.request.*;
 import com.fpu.exe.cleaninghub.dto.response.JwtAuthenticationResponse;
 import com.fpu.exe.cleaninghub.email.EmailService;
 import com.fpu.exe.cleaninghub.email.EmailTemplateName;
@@ -324,14 +321,43 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public User verifyUserAccount(String email, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
-//        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-//        if(user != null && user.getPassword() == null){
-//            throw new
-//        } else if (user == null) {
-//
-//        }
-        return null;
+    public void verifyUserAccount(String email) throws MessagingException, BadRequestException {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        if(user != null && user.getPassword() == null){
+            throw new BadRequestException("This email is not available in our system");
+        } else if (user == null) {
+            throw new BadRequestException("This email is not available in our system");
+        } else {
+            sendValidationEmail(user);
+        }
+    }
+
+    @Override
+    public void activateChangePassword(String token) throws MessagingException {
+        MailToken mailToken = mailTokenRepository.findByToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid token"));
+
+        if(LocalDateTime.now().isAfter(mailToken.getExpiresAt())){
+            sendValidationEmail(mailToken.getUser());
+            throw new RuntimeException("Activation token has expired. A new token has been send to the same email address");
+        }
+
+        var user =  userRepository.findById(mailToken.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        mailToken.setValidatedAt(LocalDateTime.now());
+        mailTokenRepository.save(mailToken);
+    }
+
+    @Override
+    public void changeForgotPassword(String email, ChangeForgotPasswordRequest request) throws MessagingException {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if(!request.getNewPassword().equals(request.getConfirmNewPassword())){
+            throw new IllegalArgumentException("password are not the same");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
     }
 
     @Override
@@ -342,22 +368,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
            throw new IllegalArgumentException("Wrong password");
        }
 
-       if(request.getNewPassword().equals(request.getConfirmationPassword())){
+       if(!request.getNewPassword().equals(request.getConfirmNewPassword())){
            throw new IllegalArgumentException("password are not the same");
        }
 
        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
        userRepository.save(user);
-    }
-
-    @Override
-    public void sendVerificationCodeEmail(User user, String siteUrl) throws MessagingException, UnsupportedEncodingException {
-
-    }
-
-    @Override
-    public Boolean changeForgotPassword(String newPassword, String confirmPassword, String username) throws NotFoundException {
-        return null;
     }
 
 
@@ -371,7 +387,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .user(user)
                 .build();
         mailTokenRepository.save(token);
-
         return generatedToken;
     }
 
