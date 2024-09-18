@@ -35,7 +35,8 @@ public class ServiceServiceImpl implements ServiceService {
                 service.getName(),
                 service.getDescription(),
                 service.getBasePrice(),
-                service.getStatus()
+                service.getStatus(),
+                service.getImg()
         ));
     }
 
@@ -48,6 +49,7 @@ public class ServiceServiceImpl implements ServiceService {
                 .basePrice(createServiceRequestDto.getBasePrice())
                 .status(Status.Active.name().toLowerCase())
                 .createDate(LocalDate.now())
+                .img(createServiceRequestDto.getImg())
                 .category(category)
                 .build();
         serviceRepository.save(service);
@@ -60,7 +62,8 @@ public class ServiceServiceImpl implements ServiceService {
     public CreateServiceResponseDto updateService(Integer serviceId, UpdateServiceRequestDto updateServiceRequestDto) {
         com.fpu.exe.cleaninghub.entity.Service existingService = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("Service not found"));
-        Category category = categoryRepository.findById((updateServiceRequestDto.getCategoryId()))
+
+        Category category = categoryRepository.findById(updateServiceRequestDto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         existingService.setName(updateServiceRequestDto.getName());
@@ -68,18 +71,17 @@ public class ServiceServiceImpl implements ServiceService {
         existingService.setBasePrice(updateServiceRequestDto.getBasePrice());
         existingService.setStatus(updateServiceRequestDto.getStatus());
         existingService.setCategory(category);
+        existingService.setImg(updateServiceRequestDto.getImg());
 
         com.fpu.exe.cleaninghub.entity.Service updatedService = serviceRepository.save(existingService);
 
         CreateServiceResponseDto responseDto = new CreateServiceResponseDto();
-        responseDto.setId(updatedService.getId());
-        responseDto.setName(updatedService.getName());
-        responseDto.setDescription(updatedService.getDescription());
-        responseDto.setBasePrice(updatedService.getBasePrice());
-        responseDto.setStatus(updatedService.getStatus());
+        modelMapper.map(updatedService, responseDto);
         responseDto.setCategoryName(updatedService.getCategory().getName());
+
         return responseDto;
     }
+
 
     @Override
     public ServiceDetailResponseDTO getServiceDetailById(Integer id) {

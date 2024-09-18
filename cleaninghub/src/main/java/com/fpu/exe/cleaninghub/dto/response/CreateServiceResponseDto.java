@@ -11,5 +11,6 @@ public class CreateServiceResponseDto {
     private String description;
     private Double basePrice;
     private String status;
+    private String img;
     private String categoryName;
 }
