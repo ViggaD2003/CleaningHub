@@ -1,6 +1,7 @@
 package com.fpu.exe.cleaninghub.services.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fpu.exe.cleaninghub.dto.request.ChangePasswordRequest;
 import com.fpu.exe.cleaninghub.dto.request.SignInRequest;
 import com.fpu.exe.cleaninghub.dto.request.SignUpRequest;
 import com.fpu.exe.cleaninghub.dto.request.UserProfileDTO;
@@ -21,6 +22,7 @@ import com.fpu.exe.cleaninghub.token.TokenType;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -317,6 +321,43 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             user.setImg(urlImg);
             userRepository.save(user);
         }
+    }
+
+    @Override
+    public User verifyUserAccount(String email, HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
+//        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+//        if(user != null && user.getPassword() == null){
+//            throw new
+//        } else if (user == null) {
+//
+//        }
+        return null;
+    }
+
+    @Override
+    public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
+       var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+
+       if(!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())){
+           throw new IllegalArgumentException("Wrong password");
+       }
+
+       if(request.getNewPassword().equals(request.getConfirmationPassword())){
+           throw new IllegalArgumentException("password are not the same");
+       }
+
+       user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+       userRepository.save(user);
+    }
+
+    @Override
+    public void sendVerificationCodeEmail(User user, String siteUrl) throws MessagingException, UnsupportedEncodingException {
+
+    }
+
+    @Override
+    public Boolean changeForgotPassword(String newPassword, String confirmPassword, String username) throws NotFoundException {
+        return null;
     }
 
 

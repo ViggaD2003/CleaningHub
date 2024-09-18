@@ -3,7 +3,9 @@ package com.fpu.exe.cleaninghub.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Table(name = "voucher")
+import java.util.Set;
+
+@Table(name = "duration")
 @Entity
 @Getter
 @Setter
@@ -25,6 +27,13 @@ public class Duration {
     @Column(name = "duration_in_hours")
     private Integer durationInHours;
 
-    @OneToOne(mappedBy = "duration")
-    private Booking booking;
+    @Column(name = "price")
+    private Double price;
+
+    @OneToMany(mappedBy = "duration")
+    private Set<Booking> bookings;
+
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    private Service service;
 }

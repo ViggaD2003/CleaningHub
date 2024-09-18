@@ -130,10 +130,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
     private List<Rating> ratingsOfUser;
 
-
-    @Enumerated(EnumType.STRING)
-    private AuthenticationProvider authenticationProvider;
-
     private String verificationCode;
 
     @Override

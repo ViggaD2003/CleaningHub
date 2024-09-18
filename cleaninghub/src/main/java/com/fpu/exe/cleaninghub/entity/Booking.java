@@ -1,6 +1,8 @@
 package com.fpu.exe.cleaninghub.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fpu.exe.cleaninghub.common.Auditable;
+import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -20,30 +22,23 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "booking")
 @EntityListeners(AuditingEntityListener.class)
-public class Booking {
+public class Booking extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private BookingStatus status;
 
-    @Column(name = "status")
-    private String status = "Pending";
-
-
-    @Column(name = "booking_date", nullable = false, updatable = false)
-    @CreatedDate
-    private LocalDate bookingDate;
-
-    @Column(name = "update_date", insertable = false)
-    @LastModifiedDate
-    private LocalDate updateDate;
-
-    @Column(name = "address")
-    private String address;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id", referencedColumnName = "id")
+    private Address address;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "booking", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-    private List<BookingDetail> bookingDetails;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "booking_detail_id", referencedColumnName = "id")
+    private BookingDetail bookingDetail;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -57,7 +52,7 @@ public class Booking {
     @JoinColumn(name = "service_id")
     private Service service;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "duration_id", referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "duration_id")
     private Duration duration;
 }

@@ -1,6 +1,7 @@
 package com.fpu.exe.cleaninghub.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fpu.exe.cleaninghub.common.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,30 +19,22 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "booking_detail")
 @EntityListeners(AuditingEntityListener.class)
-public class BookingDetail {
+public class BookingDetail extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "create_date", nullable = false, updatable = false)
-    @CreatedDate
-    private LocalDate createDate;
-
-    @Column(name = "update_date", insertable = false)
-    @LastModifiedDate
-    private LocalDate updateDate;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "voucher_id", referencedColumnName = "id")
-    private Voucher voucher;
-
     @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "booking_id")
+    @OneToOne(mappedBy = "bookingDetail")
     private Booking booking;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "bookingDetail", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-    private List<Payments> payments;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "voucher_id", referencedColumnName = "id", nullable = true)
+    private Voucher voucher;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id", referencedColumnName = "id", nullable = true)
+    private Payments payment;
+
 }
