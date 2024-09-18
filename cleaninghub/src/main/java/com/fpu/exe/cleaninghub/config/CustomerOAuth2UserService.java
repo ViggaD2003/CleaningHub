@@ -64,6 +64,13 @@ public class CustomerOAuth2UserService extends DefaultOAuth2UserService {
             user.setStatus(true);
             user.setAccountLocked(true);
             userRepository.save(user);
+            try {
+                emailService.sendEmailGoogle(user.getEmail(),user.getFullName(), "Attention Please Change Your Password");
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
         }
         var jwtToken = jwtService.generateToken(user);
         var jwtRefreshToken = jwtService.generateRefreshToken(user);
@@ -71,13 +78,7 @@ public class CustomerOAuth2UserService extends DefaultOAuth2UserService {
         revokeAllUserToken(user);
         saveUserToken(user, jwtToken, jwtRefreshToken);
 
-        try {
-            emailService.sendEmailGoogle(user.getEmail(),user.getFullName(), "Attention Please Change Your Password");
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+
         return new DefaultOAuth2User(user.getAuthorities(), oAuth2User.getAttributes(), "email");
     }
 
