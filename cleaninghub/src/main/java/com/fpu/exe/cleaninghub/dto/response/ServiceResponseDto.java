@@ -13,4 +13,5 @@ public class ServiceResponseDto {
     private String description;
     private Double basePrice;
     private String status;
+    private String img;
 }

@@ -47,6 +47,9 @@ public class Service {
     @LastModifiedDate
     private LocalDate updateDate;
 
+    @Column(name = "img")
+    private String img;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "category_id")
