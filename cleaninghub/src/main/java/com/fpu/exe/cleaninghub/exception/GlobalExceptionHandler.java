@@ -78,6 +78,16 @@ public class GlobalExceptionHandler {
                 );
     }
 
+
+    @ExceptionHandler(AccountNotAvailableToForgotPassword.class)
+    public ResponseEntity<ExceptionResponse> handleException(AccountNotAvailableToForgotPassword exp){
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(ExceptionResponse.builder()
+                        .error(exp.getMessage())
+                        .build());
+    }
+
     @ExceptionHandler(OperationNotPermittedException.class)
     public ResponseEntity<ExceptionResponse> handleException(OperationNotPermittedException exp) {
         return ResponseEntity

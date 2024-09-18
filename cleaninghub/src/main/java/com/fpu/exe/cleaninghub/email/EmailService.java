@@ -1,6 +1,7 @@
 package com.fpu.exe.cleaninghub.email;
 
 
+import com.fpu.exe.cleaninghub.entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,4 +60,26 @@ public class EmailService {
         helper.setText(template, true);
         mailSender.send(message);
     }
+
+    public void sendEmailGoogle(String to, String username, String subject) throws MessagingException, UnsupportedEncodingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(
+                message,
+                MULTIPART_MODE_MIXED,
+                UTF_8.name());
+
+        String senderName = "Cleaning-Hub";
+        helper.setFrom("danhkvtse172932@fpt.edu.vn", senderName);
+        helper.setTo(to);
+        helper.setSubject(subject);
+
+        String mailContent = "<p>Dear " + username + ",</p>";
+        mailContent += "<p>Thank you for sign up our company</p>";
+        mailContent += "Because you sign up by your google account so default password is 1";
+        mailContent += "Please change your password and don't leak this email";
+        helper.setText(mailContent, true);
+        mailSender.send(message);
+    }
+
+
 }

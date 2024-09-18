@@ -2,6 +2,7 @@
 
 
     import com.fpu.exe.cleaninghub.config.LogoutService;
+    import com.fpu.exe.cleaninghub.dto.request.ChangePasswordRequest;
     import com.fpu.exe.cleaninghub.dto.request.SignInRequest;
     import com.fpu.exe.cleaninghub.dto.request.SignUpRequest;
     import com.fpu.exe.cleaninghub.dto.request.UserProfileDTO;
@@ -21,6 +22,7 @@
     import org.springframework.web.multipart.MultipartFile;
 
     import java.io.IOException;
+    import java.security.Principal;
 
     @RestController
     @RequestMapping("/api/v1/auth")
@@ -90,9 +92,16 @@
             }
         }
 
-            @PutMapping("/update/img")
+        @PutMapping("/update/img")
         public ResponseEntity<Object> updateUserImage(@RequestBody String urlImg){
             authenticationService.updateAvatar(urlImg);
             return ResponseEntity.ok("update successfully");
+        }
+
+
+        @PatchMapping("/change-password")
+        public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, Principal connectedUser){
+            authenticationService.changePassword(request, connectedUser);
+            return ResponseEntity.ok("change successfully");
         }
     }
