@@ -62,6 +62,7 @@ public class CustomerOAuth2UserService extends DefaultOAuth2UserService {
             user.setRole(roleRepository.findById(2).orElseThrow(() -> new IllegalArgumentException("Role not found")));
             user.setPassword(beanConfig.passwordEncoder().encode("1"));
             user.setStatus(true);
+            user.setAccountLocked(true);
             userRepository.save(user);
         }
         var jwtToken = jwtService.generateToken(user);

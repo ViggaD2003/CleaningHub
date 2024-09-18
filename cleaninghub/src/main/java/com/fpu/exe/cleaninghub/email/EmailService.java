@@ -75,8 +75,8 @@ public class EmailService {
 
         String mailContent = "<p>Dear " + username + ",</p>";
         mailContent += "<p>Thank you for sign up our company</p>";
-        mailContent += "Because you sign up by your google account so default password is 1";
-        mailContent += "Please change your password and don't leak this email";
+        mailContent += "<div>Because you sign up by your google account so default password is 1 \n";
+        mailContent += "Please change your password and don't leak this email</div>";
         helper.setText(mailContent, true);
         mailSender.send(message);
     }
