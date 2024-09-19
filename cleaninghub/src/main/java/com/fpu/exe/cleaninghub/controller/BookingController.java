@@ -4,20 +4,17 @@ import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
 import com.fpu.exe.cleaninghub.dto.response.CreateBookingResponseDTO;
 import com.fpu.exe.cleaninghub.dto.response.BookingDetailResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.BookingResponseDto;
+import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.utils.wapper.API;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
@@ -59,4 +56,27 @@ public class BookingController {
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
         }
     }
+    @GetMapping("/get-by-current-staff")
+    public ResponseEntity<?> GetAllBookingByStaffId(HttpServletRequest request,@RequestParam(defaultValue = "0") Integer page,
+                                                    @RequestParam(defaultValue = "10") Integer size){
+
+        try{
+            Pageable pageable = PageRequest.of(page, size);
+            Page<BookingResponseDto> bookings = bookingService.getAllStaffBookings(request, pageable);
+            return ResponseEntity.ok((API.Response.success(bookings)));
+        }catch (Exception e){
+            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
+        }
+    }
+    @PutMapping("/chang-booking-status/{id}/{bookingStatus}")
+    public ResponseEntity<?> ChangeBookingStatus(@PathVariable BookingStatus bookingStatus, @PathVariable Integer id){
+        try{
+            bookingService.ChangeBookingStatus(bookingStatus, id);
+            return ResponseEntity.ok(API.Response.success("Chang status successfully"));
+        }catch (Exception e){
+            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong!!", e.getMessage()));
+        }
+    }
+
+
 }

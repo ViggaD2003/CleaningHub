@@ -219,6 +219,30 @@ public class BookingServiceImpl implements BookingService {
                 .build();
     }
 
+    @Override
+    public Page<BookingResponseDto> getAllStaffBookings(HttpServletRequest request, Pageable pageable) {
+        Page<Booking> bookings = bookingRepository.findByStaffId(getCurrentUser(request).getId(), pageable);
+        return bookings.map(booking -> modelMapper.map(booking, BookingResponseDto.class));
+    }
+
+    @Override
+    public void ChangeBookingStatus(BookingStatus bookingStatus, Integer id) {
+        Booking booking = bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+        booking.setStatus(
+                switch (bookingStatus){
+                    case PENDING -> BookingStatus.PENDING;
+                    case AWAITING_CONFIRMATION -> BookingStatus.AWAITING_CONFIRMATION;
+                    case REJECTED -> BookingStatus.REJECTED;
+                    case CONFIRMED -> BookingStatus.CONFIRMED;
+                    case IN_PROGRESS -> BookingStatus.IN_PROGRESS;
+                    case COMPLETED -> BookingStatus.COMPLETED;
+                    case CANCELLED -> BookingStatus.CANCELLED;
+                    default -> booking.getStatus();
+                }
+        );
+        bookingRepository.save(booking);
+    }
+
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher) {
         // Convert the base price to BigDecimal
         BigDecimal basePrice = BigDecimal.valueOf(service.getBasePrice());
@@ -240,4 +264,5 @@ public class BookingServiceImpl implements BookingService {
         // Round the final price to 2 decimal places (for currency)
         return finalPrice.setScale(2, RoundingMode.HALF_UP);
     }
+
 }
