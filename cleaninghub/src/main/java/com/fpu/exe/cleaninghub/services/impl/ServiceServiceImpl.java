@@ -30,14 +30,7 @@ public class ServiceServiceImpl implements ServiceService {
     public Page<ServiceResponseDto> getAvailableServices(String searchTerm, int pageIndex, int pageSize) {
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
         Page<com.fpu.exe.cleaninghub.entity.Service> servicePage = serviceRepository.GetAllService(searchTerm, pageable);
-        return servicePage.map(service -> new ServiceResponseDto(
-                service.getId(),
-                service.getName(),
-                service.getDescription(),
-                service.getBasePrice(),
-                service.getStatus(),
-                service.getImg()
-        ));
+        return servicePage.map(service -> modelMapper.map(service, ServiceResponseDto.class));
     }
 
     @Override
@@ -62,23 +55,13 @@ public class ServiceServiceImpl implements ServiceService {
     public CreateServiceResponseDto updateService(Integer serviceId, UpdateServiceRequestDto updateServiceRequestDto) {
         com.fpu.exe.cleaninghub.entity.Service existingService = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("Service not found"));
-
         Category category = categoryRepository.findById(updateServiceRequestDto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
-
-        existingService.setName(updateServiceRequestDto.getName());
-        existingService.setDescription(updateServiceRequestDto.getDescription());
-        existingService.setBasePrice(updateServiceRequestDto.getBasePrice());
-        existingService.setStatus(updateServiceRequestDto.getStatus());
+        modelMapper.map(updateServiceRequestDto, existingService);
         existingService.setCategory(category);
-        existingService.setImg(updateServiceRequestDto.getImg());
-
         com.fpu.exe.cleaninghub.entity.Service updatedService = serviceRepository.save(existingService);
-
-        CreateServiceResponseDto responseDto = new CreateServiceResponseDto();
-        modelMapper.map(updatedService, responseDto);
+        CreateServiceResponseDto responseDto = modelMapper.map(updatedService, CreateServiceResponseDto.class);
         responseDto.setCategoryName(updatedService.getCategory().getName());
-
         return responseDto;
     }
 
