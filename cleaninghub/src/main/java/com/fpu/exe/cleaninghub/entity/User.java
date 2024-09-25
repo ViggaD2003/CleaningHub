@@ -122,13 +122,14 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "staff", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
     private List<Booking> assignOfStaffs;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "staff", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-    private List<Rating> ratingOfStaff;
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "staff", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
+//    private List<Rating> ratingOfStaff;
+//
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
+//    private List<Rating> ratingsOfUser;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-    private List<Rating> ratingsOfUser;
 
     private String verificationCode;
 

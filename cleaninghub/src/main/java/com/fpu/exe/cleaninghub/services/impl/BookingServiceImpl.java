@@ -9,6 +9,7 @@ import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
 import com.fpu.exe.cleaninghub.repository.*;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
+import com.fpu.exe.cleaninghub.services.interfc.RatingService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
+import java.util.List;
 
 
 @Service
@@ -46,6 +49,11 @@ public class BookingServiceImpl implements BookingService {
     private BookingDetailRepository bookingDetailRepository;
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private RatingService ratingService;
+
+
     @Override
     public Page<BookingResponseDto> searchBookings(HttpServletRequest request, String searchTerm, int pageIndex, int pageSize) {
         User currentUser = getCurrentUser(request);
@@ -241,6 +249,14 @@ public class BookingServiceImpl implements BookingService {
                 }
         );
         bookingRepository.save(booking);
+    }
+
+    @Override
+    public User findAvailableStaff(List<User> availableStaffs) {
+        availableStaffs.sort(Comparator.comparing(User::getAverageRating)
+                .thenComparing(staff -> ratingService.numberOfRatings(staff.getId()))
+                .reversed());
+        return availableStaffs.get(0);
     }
 
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher) {

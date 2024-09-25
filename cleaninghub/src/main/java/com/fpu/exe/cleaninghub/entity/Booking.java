@@ -55,4 +55,7 @@ public class Booking extends Auditable {
     @ManyToOne
     @JoinColumn(name = "duration_id")
     private Duration duration;
+
+    @OneToOne(mappedBy = "booking")
+    private Rating rating;
 }
