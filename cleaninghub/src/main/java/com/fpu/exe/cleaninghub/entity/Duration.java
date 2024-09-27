@@ -1,5 +1,6 @@
 package com.fpu.exe.cleaninghub.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,9 +32,11 @@ public class Duration {
     private Double price;
 
     @OneToMany(mappedBy = "duration")
+    @JsonIgnore
     private Set<Booking> bookings;
 
     @ManyToOne
     @JoinColumn(name = "service_id")
+    @JsonIgnore
     private Service service;
 }

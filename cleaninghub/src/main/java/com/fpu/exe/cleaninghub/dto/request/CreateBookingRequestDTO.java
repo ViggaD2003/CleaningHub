@@ -8,9 +8,6 @@ import lombok.Setter;
 
 @Getter
 public class CreateBookingRequestDTO {
-    @NotNull(message = "Email cannot be null")
-    @Email(message = "Invalid email format")
-    private String email;
 
     @NotNull(message = "Service ID cannot be null")
     private Integer serviceId;

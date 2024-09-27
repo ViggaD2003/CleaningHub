@@ -77,6 +77,4 @@ public class BookingController {
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong!!", e.getMessage()));
         }
     }
-
-
 }
