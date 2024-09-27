@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -180,9 +182,14 @@ public class BookingServiceImpl implements BookingService {
 
         bookingDetailRepository.save(bookingDetail);
 
+        List<User> availableStaffs = userRepository.findAllStaff();
         // Fetch staff and user
-        User staff = userRepository.findStaffByHighestAverageRating();
-        User user = userRepository.findByEmail(createBookingRequestDTO.getEmail())
+        User staff = findAvailableStaff(availableStaffs);
+
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = userDetails.getUsername();
+
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Create and save the booking
