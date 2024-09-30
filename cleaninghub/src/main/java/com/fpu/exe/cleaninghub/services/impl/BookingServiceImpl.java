@@ -127,6 +127,7 @@ public class BookingServiceImpl implements BookingService {
         }
         return null;
     }
+
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     @Override
     public CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO) {
