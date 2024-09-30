@@ -239,9 +239,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<BookingResponseDto> getAllStaffBookings(HttpServletRequest request, Pageable pageable) {
-        Page<Booking> bookings = bookingRepository.findByStaffId(getCurrentUser(request).getId(), pageable);
-        return bookings.map(booking -> modelMapper.map(booking, BookingResponseDto.class));
+    public Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable) {
+        Page<Booking> bookings = bookingRepository.findByStaffId(getCurrentUser(request).getId(),bookingStatus, pageable);
+        return bookings.map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class));
     }
 
     @Override

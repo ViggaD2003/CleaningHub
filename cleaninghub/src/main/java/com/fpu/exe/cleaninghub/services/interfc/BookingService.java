@@ -4,6 +4,7 @@ import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
 import com.fpu.exe.cleaninghub.dto.response.CreateBookingResponseDTO;
 import com.fpu.exe.cleaninghub.dto.response.BookingDetailResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.BookingResponseDto;
+import com.fpu.exe.cleaninghub.dto.response.ListBookingResponseDTO;
 import com.fpu.exe.cleaninghub.entity.User;
 import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
@@ -16,7 +17,7 @@ public interface BookingService {
     Page<BookingResponseDto> searchBookings(HttpServletRequest request, String searchTerm, int pageIndex, int pageSize);
     BookingDetailResponseDto getBookingDetail(HttpServletRequest request, Integer bookingId);
     CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO);
-    Page<BookingResponseDto> getAllStaffBookings(HttpServletRequest request, Pageable pageable);
+    Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable);
     void ChangeBookingStatus(BookingStatus bookingStatus, Integer id);
     User findAvailableStaff(List<User> availableStaffs);
     void changePaymentStatusOfBooking(Integer bookingId, PaymentStatus paymentStatus);
