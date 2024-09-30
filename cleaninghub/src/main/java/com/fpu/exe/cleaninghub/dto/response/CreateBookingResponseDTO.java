@@ -21,4 +21,6 @@ public class CreateBookingResponseDTO {
     private DurationResponseDTO duration;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
+    private LocalDateTime startedAt;
+    private LocalDateTime endAt;
 }

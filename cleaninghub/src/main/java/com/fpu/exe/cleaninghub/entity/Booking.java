@@ -58,4 +58,10 @@ public class Booking extends Auditable {
 
     @OneToOne(mappedBy = "booking")
     private Rating rating;
+
+    @Column(name = "started_at", nullable = false)
+    private LocalDateTime startDate;
+
+    @Column(name = "end_at", nullable = false)
+    private LocalDateTime endDate;
 }
