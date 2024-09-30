@@ -251,8 +251,6 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(
                 switch (bookingStatus){
                     case PENDING -> BookingStatus.PENDING;
-                    case AWAITING_CONFIRMATION -> BookingStatus.AWAITING_CONFIRMATION;
-                    case REJECTED -> BookingStatus.REJECTED;
                     case CONFIRMED -> BookingStatus.CONFIRMED;
                     case IN_PROGRESS -> BookingStatus.IN_PROGRESS;
                     case COMPLETED -> BookingStatus.COMPLETED;
