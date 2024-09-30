@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 public class CreateBookingRequestDTO {
 
@@ -22,4 +24,6 @@ public class CreateBookingRequestDTO {
 
     @NotNull(message = "Payment method cannot be null")
     private PaymentMethod paymentMethod;  // Add payment method
+
+    private LocalDateTime startTime;
 }
