@@ -4,7 +4,6 @@ import com.fpu.exe.cleaninghub.entity.Booking;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +22,4 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Page<Booking> findByUserId(Integer userId, String searchTerm, Pageable pageable);
     Optional<Booking> findByIdAndUserId(Integer bookingId, Integer userId);
     Page<Booking> findByStaffId(Integer staffId, Pageable pageable);
-
-
 }

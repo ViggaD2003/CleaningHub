@@ -10,12 +10,18 @@ import com.fpu.exe.cleaninghub.repository.*;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
 import com.fpu.exe.cleaninghub.services.interfc.RatingService;
+import groovy.util.logging.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,12 +29,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 
-
+@Slf4j
 @Service
 public class BookingServiceImpl implements BookingService {
+    private static final Logger log = LoggerFactory.getLogger(BookingServiceImpl.class);
     @Autowired
     private TokenRepository tokenRepository;
     @Autowired
@@ -52,7 +60,8 @@ public class BookingServiceImpl implements BookingService {
 
     @Autowired
     private RatingService ratingService;
-
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
     public Page<BookingResponseDto> searchBookings(HttpServletRequest request, String searchTerm, int pageIndex, int pageSize) {
@@ -128,6 +137,13 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     @Override
     public CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO) {
+
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String email = userDetails.getUsername();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         // Fetch the selected service and duration
         com.fpu.exe.cleaninghub.entity.Service serviceSelected = serviceRepository
                 .findById(createBookingRequestDTO.getServiceId())
@@ -136,6 +152,14 @@ public class BookingServiceImpl implements BookingService {
         Duration durationSelected = durationRepository
                 .findByIdAndServiceId(createBookingRequestDTO.getDurationId(), serviceSelected.getId())
                 .orElseThrow(() -> new RuntimeException("Duration not found"));
+
+        LocalDateTime endTime = createBookingRequestDTO.getStartTime().plusHours(durationSelected.getDurationInHours());
+        List<User> availableStaffs = userRepository.findStaffByBookingTime(createBookingRequestDTO.getStartTime(), endTime);
+
+        if(availableStaffs.isEmpty()){
+            throw new RuntimeException("The staffs are busy at this time. Please choose another time");
+        }
+        User staff = findAvailableStaff(availableStaffs);
 
         // Handle voucher if provided
         Voucher voucherSelected = null;
@@ -156,10 +180,7 @@ public class BookingServiceImpl implements BookingService {
             // Cash payments are completed after the service is done
             paymentStatus = PaymentStatus.PENDING; // Pending until the service is completed
         } else {
-            // For online banking (e.g., MOMO, VNPAY, PAYOS), we might set it to pending until the bank confirms the payment
-            paymentStatus = PaymentStatus.PENDING;
-            // Optionally, generate or store transaction ID if your system works with external payment gateways
-//            transactionId = generateTransactionId(createBookingRequestDTO.getPaymentMethod());
+            paymentStatus = PaymentStatus.SUCCESS;
         }
 
         // Create payment details
@@ -167,7 +188,6 @@ public class BookingServiceImpl implements BookingService {
                 .finalPrice(finalPrice)
                 .paymentMethod(createBookingRequestDTO.getPaymentMethod())
                 .paymentStatus(paymentStatus)
-                .transactionId(transactionId) // Only relevant for online payments
                 .build();
 
         paymentRepository.save(payment);
@@ -180,43 +200,32 @@ public class BookingServiceImpl implements BookingService {
 
         bookingDetailRepository.save(bookingDetail);
 
-        // Fetch staff and user
-        User staff = userRepository.findStaffByHighestAverageRating();
-        User user = userRepository.findByEmail(createBookingRequestDTO.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Create and save the booking
-        Address address = Address.builder()
-                .street(createBookingRequestDTO.getAddress().getStreet())
-                .city(createBookingRequestDTO.getAddress().getCity())
-                .state(createBookingRequestDTO.getAddress().getState())
-                .zipCode(createBookingRequestDTO.getAddress().getZipCode())
-                .country(createBookingRequestDTO.getAddress().getCountry())
-                .build();
-
         Booking booking = Booking.builder()
                 .bookingDetail(bookingDetail)
                 .service(serviceSelected)
                 .staff(staff)
                 .user(user)
                 .duration(durationSelected)
-                .address(address)
-                .status(BookingStatus.AWAITING_CONFIRMATION)
+//                .address(modelMapper.map(createBookingRequestDTO.getAddress(), Address.class))
+                .status(BookingStatus.PENDING)
+                .startDate(createBookingRequestDTO.getStartTime())
+                .endDate(endTime)
                 .build();
 
         bookingRepository.save(booking);
+        try {
+            simpMessagingTemplate.convertAndSend("/topic/notifications", booking);
+            log.info("Websocket notification sent to staff successfully for booking id: {}", booking.getId());
+        } catch (Exception e){
+            log.error("Failed to send Websocket notification to staff for booking id: {}", booking.getId());
+            throw new RuntimeException("Failed to send Websocket notification");
+        }
 
         // Create and return the final response
         return CreateBookingResponseDTO.builder()
                 .id(booking.getId())
                 .status(booking.getStatus())
-                .address(AddressResponseDTO.builder()
-                        .street(address.getStreet())
-                        .city(address.getCity())
-                        .state(address.getState())
-                        .zipCode(address.getZipCode())
-                        .country(address.getCountry())
-                        .build())
+//                .address(modelMapper.map(booking.getAddress(), AddressResponseDTO.class))
                 .bookingDetail(modelMapper.map(bookingDetail, BookingDetailResponseDto.class))
                 .service(modelMapper.map(serviceSelected, ServiceDetailResponseDTO.class))
                 .staff(modelMapper.map(staff, UserResponseDTO.class))
@@ -224,6 +233,8 @@ public class BookingServiceImpl implements BookingService {
                 .duration(modelMapper.map(durationSelected, DurationResponseDTO.class))
                 .createdDate(booking.getCreatedDate())
                 .updatedDate(booking.getUpdatedDate())
+                .startedAt(createBookingRequestDTO.getStartTime())
+                .endAt(endTime)
                 .build();
     }
 
@@ -274,25 +285,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher) {
-        // Convert the base price to BigDecimal
-        BigDecimal basePrice = BigDecimal.valueOf(service.getBasePrice());
 
-        // Initialize finalPrice with basePrice
-        BigDecimal finalPrice = basePrice;
+        Double basePrice = service.getBasePrice();
 
-        // Apply voucher discount if applicable
-        if (voucher != null) {
-            BigDecimal voucherAmount = BigDecimal.valueOf(voucher.getAmount());
-            finalPrice = finalPrice.subtract(voucherAmount);  // Subtract the voucher amount
+        double finalPrice = (double) 0;
+        finalPrice += basePrice + (duration.getPrice() * duration.getDurationInHours());
+        if(voucher != null){
+            finalPrice = finalPrice * voucher.getPercentage() / 100;
         }
 
-        // Ensure the final price is non-negative and round to 2 decimal places
-        if (finalPrice.compareTo(BigDecimal.ZERO) < 0) {
-            finalPrice = BigDecimal.ZERO;
-        }
-
-        // Round the final price to 2 decimal places (for currency)
-        return finalPrice.setScale(2, RoundingMode.HALF_UP);
+        return BigDecimal.valueOf(finalPrice).setScale(3,RoundingMode.HALF_DOWN);
     }
-
 }
