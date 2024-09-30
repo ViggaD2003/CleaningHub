@@ -239,9 +239,9 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<BookingResponseDto> getAllStaffBookings(HttpServletRequest request, Pageable pageable) {
-        Page<Booking> bookings = bookingRepository.findByStaffId(getCurrentUser(request).getId(), pageable);
-        return bookings.map(booking -> modelMapper.map(booking, BookingResponseDto.class));
+    public Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable) {
+        Page<Booking> bookings = bookingRepository.findByStaffId(getCurrentUser(request).getId(),bookingStatus, pageable);
+        return bookings.map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class));
     }
 
     @Override
@@ -268,6 +268,20 @@ public class BookingServiceImpl implements BookingService {
                 .thenComparing(staff -> ratingService.numberOfRatings(staff.getId()))
                 .reversed());
         return availableStaffs.get(0);
+    }
+
+    @Override
+    public void changePaymentStatusOfBooking(Integer bookingId, PaymentStatus paymentStatus) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+        Payments payments = booking.getBookingDetail().getPayment();
+        payments.setPaymentStatus(
+                switch (paymentStatus){
+                    case SUCCESS -> PaymentStatus.SUCCESS;
+                    case FAILED -> PaymentStatus.FAILED;
+                    default -> payments.getPaymentStatus();
+                }
+        );
+        paymentRepository.save(payments);
     }
 
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher) {

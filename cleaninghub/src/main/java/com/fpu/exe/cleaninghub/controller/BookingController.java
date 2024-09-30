@@ -4,6 +4,7 @@ import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
 import com.fpu.exe.cleaninghub.dto.response.CreateBookingResponseDTO;
 import com.fpu.exe.cleaninghub.dto.response.BookingDetailResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.BookingResponseDto;
+import com.fpu.exe.cleaninghub.dto.response.ListBookingResponseDTO;
 import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.utils.wapper.API;
@@ -57,12 +58,12 @@ public class BookingController {
         }
     }
     @GetMapping("/get-by-current-staff")
-    public ResponseEntity<?> GetAllBookingByStaffId(HttpServletRequest request,@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<?> GetAllBookingByStaffId(HttpServletRequest request, @RequestParam BookingStatus bookingStatus,@RequestParam(defaultValue = "0") Integer page,
                                                     @RequestParam(defaultValue = "10") Integer size){
 
         try{
             Pageable pageable = PageRequest.of(page, size);
-            Page<BookingResponseDto> bookings = bookingService.getAllStaffBookings(request, pageable);
+            Page<ListBookingResponseDTO> bookings = bookingService.getAllStaffBookings(request, bookingStatus, pageable);
             return ResponseEntity.ok((API.Response.success(bookings)));
         }catch (Exception e){
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));

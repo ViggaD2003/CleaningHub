@@ -20,10 +20,12 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT u\n" +
             "FROM User u \n" +
             "LEFT JOIN Booking b ON b.staff.id = u.id\n" +
+            "AND b.status != 'COMPLETED'\n" +
             "AND b.startDate < :endTime\n" +
             "AND b.endDate > :startTime\n" +
             "WHERE u.role.id = 3\n" +
             "AND b.id IS NULL\n" +
             "AND u.accountLocked = true\n")
+
     List<User> findStaffByBookingTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 }
