@@ -6,6 +6,7 @@ import com.fpu.exe.cleaninghub.dto.response.BookingDetailResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.BookingResponseDto;
 import com.fpu.exe.cleaninghub.entity.User;
 import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
+import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,5 @@ public interface BookingService {
     Page<BookingResponseDto> getAllStaffBookings(HttpServletRequest request, Pageable pageable);
     void ChangeBookingStatus(BookingStatus bookingStatus, Integer id);
     User findAvailableStaff(List<User> availableStaffs);
+    void changePaymentStatusOfBooking(Integer bookingId, PaymentStatus paymentStatus);
 }

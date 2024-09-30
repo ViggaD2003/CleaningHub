@@ -259,6 +259,20 @@ public class BookingServiceImpl implements BookingService {
         return availableStaffs.get(0);
     }
 
+    @Override
+    public void changePaymentStatusOfBooking(Integer bookingId, PaymentStatus paymentStatus) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+        Payments payments = booking.getBookingDetail().getPayment();
+        payments.setPaymentStatus(
+                switch (paymentStatus){
+                    case SUCCESS -> PaymentStatus.SUCCESS;
+                    case FAILED -> PaymentStatus.FAILED;
+                    default -> payments.getPaymentStatus();
+                }
+        );
+        paymentRepository.save(payments);
+    }
+
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher) {
         // Convert the base price to BigDecimal
         BigDecimal basePrice = BigDecimal.valueOf(service.getBasePrice());
