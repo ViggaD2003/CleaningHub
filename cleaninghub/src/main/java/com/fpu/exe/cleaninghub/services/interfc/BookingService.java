@@ -18,7 +18,7 @@ public interface BookingService {
     BookingDetailResponseDto getBookingDetail(HttpServletRequest request, Integer bookingId);
     CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO);
     Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable);
-    void ChangeBookingStatus(BookingStatus bookingStatus, Integer id);
+    void ChangeBookingStatus(BookingStatus bookingStatus, Integer id, HttpServletRequest request);
     User findAvailableStaff(List<User> availableStaffs);
-    void changePaymentStatusOfBooking(Integer bookingId, PaymentStatus paymentStatus);
+    void changePaymentStatusOfBooking(Long orderCode, Integer bookingId, PaymentStatus paymentStatus);
 }
