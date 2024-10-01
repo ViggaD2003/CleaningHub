@@ -9,6 +9,7 @@ import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.utils.wapper.API;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,7 +50,7 @@ public class BookingController {
         }
     }
     @PostMapping
-    public ResponseEntity<?> CreateBooking(@RequestBody CreateBookingRequestDTO createBookingRequestDTO){
+    public ResponseEntity<?> CreateBooking(@RequestBody @Valid CreateBookingRequestDTO createBookingRequestDTO){
         try{
             CreateBookingResponseDTO response = bookingService.createBooking(createBookingRequestDTO);
             return ResponseEntity.ok(API.Response.success(response));

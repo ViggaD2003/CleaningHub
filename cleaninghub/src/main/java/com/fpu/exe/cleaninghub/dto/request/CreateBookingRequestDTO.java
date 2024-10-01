@@ -1,8 +1,7 @@
 package com.fpu.exe.cleaninghub.dto.request;
 
 import com.fpu.exe.cleaninghub.enums.Payment.PaymentMethod;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,8 +16,13 @@ public class CreateBookingRequestDTO {
     @NotNull(message = "Duration ID cannot be null")
     private Integer durationId;
 
+    @NotNull(message = "Number of worker cannot be null")
+    @Min(value = 1, message = "Number of worker must be at least 1")
+    @Max(value = 5, message = "Number of worker must not be greater than 5")
+    private Integer numberOfWorker;
+
     @NotNull(message = "Address cannot be null")
-    private AddressRequestDTO address;  // Make sure this class is also properly validated
+    private String address;  // Make sure this class is also properly validated
 
     private Integer voucherId;  // Optional, hence no validation required
 

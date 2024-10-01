@@ -31,10 +31,6 @@ public class Booking extends Auditable {
     @Column(name = "status", nullable = false)
     private BookingStatus status;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "address_id", referencedColumnName = "id")
-    private Address address;
-
     @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "booking_detail_id", referencedColumnName = "id")
@@ -43,6 +39,9 @@ public class Booking extends Auditable {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name = "address")
+    private String address;
 
     @ManyToOne
     @JoinColumn(name = "staff_id")

@@ -14,7 +14,7 @@ public class CreateBookingResponseDTO {
     private Integer id;
     private BookingStatus status;
     private BookingDetailResponseDto bookingDetail;
-    private AddressResponseDTO address;
+    private String address;
     private UserResponseDTO user;
     private UserResponseDTO staff;
     private ServiceDetailResponseDTO service;

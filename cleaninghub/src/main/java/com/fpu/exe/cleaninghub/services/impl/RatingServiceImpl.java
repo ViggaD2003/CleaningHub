@@ -27,7 +27,7 @@ public class RatingServiceImpl implements RatingService {
     private Double calculateAverageRating(Integer staffId) {
         List<Rating> ratingsOfStaff = ratingRepository.findAllByStaffId(staffId);
         if (ratingsOfStaff == null || ratingsOfStaff.isEmpty()) {
-            return 0.0;
+            return userRepository.findById(staffId).get().getAverageRating() + 0.0;
         }
         double totalStars = ratingsOfStaff.stream()
                 .mapToInt(Rating::getStars)

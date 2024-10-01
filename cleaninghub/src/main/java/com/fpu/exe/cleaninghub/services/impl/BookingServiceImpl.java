@@ -171,7 +171,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         // Calculate the final price based on service, duration, and voucher
-        BigDecimal finalPrice = calculateFinalPrice(serviceSelected, durationSelected, voucherSelected);
+        BigDecimal finalPrice = calculateFinalPrice(serviceSelected, durationSelected, voucherSelected, createBookingRequestDTO.getNumberOfWorker());
 
         // Determine payment status based on payment method
         PaymentStatus paymentStatus;
@@ -207,7 +207,7 @@ public class BookingServiceImpl implements BookingService {
                 .staff(staff)
                 .user(user)
                 .duration(durationSelected)
-//                .address(modelMapper.map(createBookingRequestDTO.getAddress(), Address.class))
+                .address(createBookingRequestDTO.getAddress())
                 .status(BookingStatus.PENDING)
                 .startDate(createBookingRequestDTO.getStartTime())
                 .endDate(endTime)
@@ -226,7 +226,7 @@ public class BookingServiceImpl implements BookingService {
         return CreateBookingResponseDTO.builder()
                 .id(booking.getId())
                 .status(booking.getStatus())
-//                .address(modelMapper.map(booking.getAddress(), AddressResponseDTO.class))
+                .address(booking.getAddress())
                 .bookingDetail(modelMapper.map(bookingDetail, BookingDetailResponseDto.class))
                 .service(modelMapper.map(serviceSelected, ServiceDetailResponseDTO.class))
                 .staff(modelMapper.map(staff, UserResponseDTO.class))
@@ -283,12 +283,12 @@ public class BookingServiceImpl implements BookingService {
         paymentRepository.save(payments);
     }
 
-    private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher) {
+    private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher, Integer numberOfWorker) {
 
         Double basePrice = service.getBasePrice();
 
         double finalPrice = (double) 0;
-        finalPrice += basePrice + (duration.getPrice() * duration.getDurationInHours());
+        finalPrice += basePrice + ((duration.getPrice() * duration.getDurationInHours()) * numberOfWorker);
         if(voucher != null){
             finalPrice = finalPrice * voucher.getPercentage() / 100;
         }

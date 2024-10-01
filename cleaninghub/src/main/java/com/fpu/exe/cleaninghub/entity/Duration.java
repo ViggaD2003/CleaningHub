@@ -22,8 +22,8 @@ public class Duration {
     @Column(name = "area")
     private Double area;
 
-    @Column(name = "number_of_worker")
-    private Integer numberOfWork;
+//    @Column(name = "number_of_worker")
+//    private Integer numberOfWork;
 
     @Column(name = "duration_in_hours")
     private Integer durationInHours;

@@ -19,7 +19,7 @@ VALUES
 (180.00, '2024-09-19', 'Thorough carpet cleaning service', 'Carpet Clean', 'active', '2024-09-19', 4);
 
 -- Insert durations for 'Standard Clean' (Service ID: 1)
-INSERT INTO duration (area, duration_in_hours, number_of_worker, price, service_id)
+INSERT INTO duration (area, duration_in_hours, price, service_id)
 VALUES
 (50.0, 2, 2, 100.00, 1),  -- Small House (50 sqm)
 (100.0, 4, 3, 150.00, 1),  -- Medium House (100 sqm)

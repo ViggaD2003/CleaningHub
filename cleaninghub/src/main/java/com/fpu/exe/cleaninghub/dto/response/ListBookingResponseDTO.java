@@ -17,8 +17,7 @@ public class ListBookingResponseDTO {
 
     private BookingStatus status;
 
-    private Address address;
-
+    private String address;
 
     private User user;
 
