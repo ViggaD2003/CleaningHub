@@ -1,5 +1,6 @@
 package com.fpu.exe.cleaninghub.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Entity
@@ -40,6 +42,7 @@ public class Voucher {
     @Column(name = "amount")
     private Integer amount;
 
-    @OneToOne(mappedBy = "voucher")
-    private BookingDetail bookingDetail;
+    @JsonIgnore
+    @OneToMany(mappedBy = "voucher", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
+    private List<BookingDetail> bookingDetail;
 }

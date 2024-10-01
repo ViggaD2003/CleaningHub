@@ -174,14 +174,11 @@ public class BookingServiceImpl implements BookingService {
         BigDecimal finalPrice = calculateFinalPrice(serviceSelected, durationSelected, voucherSelected, createBookingRequestDTO.getNumberOfWorker());
 
         // Determine payment status based on payment method
-        PaymentStatus paymentStatus;
-        String transactionId = null; // For online payments, we'll set this later
+        PaymentStatus paymentStatus = null;
 
         if (createBookingRequestDTO.getPaymentMethod() == PaymentMethod.CASH) {
             // Cash payments are completed after the service is done
             paymentStatus = PaymentStatus.PENDING; // Pending until the service is completed
-        } else {
-            paymentStatus = PaymentStatus.SUCCESS;
         }
 
         // Create payment details

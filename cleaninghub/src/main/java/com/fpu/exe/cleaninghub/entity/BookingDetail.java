@@ -29,8 +29,8 @@ public class BookingDetail extends Auditable {
     @OneToOne(mappedBy = "bookingDetail")
     private Booking booking;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "voucher_id", referencedColumnName = "id", nullable = true)
+    @ManyToOne
+    @JoinColumn(name = "voucher_id")
     private Voucher voucher;
 
     @OneToOne(cascade = CascadeType.ALL)

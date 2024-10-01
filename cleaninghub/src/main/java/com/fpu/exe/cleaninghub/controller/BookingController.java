@@ -61,7 +61,6 @@ public class BookingController {
     @GetMapping("/get-by-current-staff")
     public ResponseEntity<?> GetAllBookingByStaffId(HttpServletRequest request, @RequestParam BookingStatus bookingStatus,@RequestParam(defaultValue = "0") Integer page,
                                                     @RequestParam(defaultValue = "10") Integer size){
-
         try{
             Pageable pageable = PageRequest.of(page, size);
             Page<ListBookingResponseDTO> bookings = bookingService.getAllStaffBookings(request, bookingStatus, pageable);
