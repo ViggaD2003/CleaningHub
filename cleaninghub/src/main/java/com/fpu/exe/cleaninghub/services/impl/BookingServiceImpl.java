@@ -32,6 +32,7 @@ import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -243,8 +244,12 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void ChangeBookingStatus(BookingStatus bookingStatus, Integer id) {
+    public void ChangeBookingStatus(BookingStatus bookingStatus, Integer id, HttpServletRequest request) {
+        User currentUser = getCurrentUser(request);
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+        Payments payments = booking.getBookingDetail().getPayment();
+        if (!Objects.equals(currentUser.getId(), booking.getStaff().getId()))
+            throw new RuntimeException("You are not staff for this service!!!!");
         booking.setStatus(
                 switch (bookingStatus){
                     case PENDING -> BookingStatus.PENDING;
@@ -255,6 +260,12 @@ public class BookingServiceImpl implements BookingService {
                     default -> booking.getStatus();
                 }
         );
+        if (booking.getStatus().equals(BookingStatus.COMPLETED)){
+            if (payments.getPaymentMethod().equals(PaymentMethod.CASH)){
+                payments.setPaymentStatus(PaymentStatus.SUCCESS);
+                paymentRepository.save(payments);
+            }
+        }
         bookingRepository.save(booking);
     }
 
@@ -267,7 +278,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public void changePaymentStatusOfBooking(Integer bookingId, PaymentStatus paymentStatus) {
+    public void changePaymentStatusOfBooking(Long orderCode, Integer bookingId, PaymentStatus paymentStatus) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
         Payments payments = booking.getBookingDetail().getPayment();
         payments.setPaymentStatus(
@@ -277,6 +288,7 @@ public class BookingServiceImpl implements BookingService {
                     default -> payments.getPaymentStatus();
                 }
         );
+        payments.setTransactionId(String.valueOf(orderCode));
         paymentRepository.save(payments);
     }
 
