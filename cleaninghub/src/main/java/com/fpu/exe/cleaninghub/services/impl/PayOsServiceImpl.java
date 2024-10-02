@@ -1,15 +1,19 @@
 package com.fpu.exe.cleaninghub.services.impl;
 
+import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
+import com.fpu.exe.cleaninghub.dto.response.CreateBookingResponseDTO;
 import com.fpu.exe.cleaninghub.entity.Booking;
 import com.fpu.exe.cleaninghub.entity.Payments;
 import com.fpu.exe.cleaninghub.entity.User;
 import com.fpu.exe.cleaninghub.repository.BookingRepository;
 import com.fpu.exe.cleaninghub.repository.TokenRepository;
 import com.fpu.exe.cleaninghub.repository.UserRepository;
+import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
 import com.fpu.exe.cleaninghub.services.interfc.PayOsService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 import vn.payos.PayOS;
@@ -29,19 +33,22 @@ public class PayOsServiceImpl implements PayOsService {
     private final TokenRepository tokenRepository;
     private final JWTService jwtService;
     private final UserRepository userRepository;
+    private final BookingService bookingService;
+    private final ModelMapper modelMapper;
+
     @Override
-    public CheckoutResponseData createCheckoutUrl(HttpServletRequest request, Integer bookingId) throws Exception {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+    public CheckoutResponseData createCheckoutUrl(HttpServletRequest request, CreateBookingRequestDTO dto) throws Exception {
+        CreateBookingResponseDTO responseDTO = bookingService.createBooking(dto);
         User currentUser = getCurrentUser(request);
-        if (!Objects.equals(booking.getUser().getId(), currentUser.getId())){
+        if (!Objects.equals(responseDTO.getUser().getId(), currentUser.getId())){
             throw new IllegalArgumentException("You not assign this booking!!!!!");
         }
-        Payments payments = booking.getBookingDetail().getPayment();
-        String productName = booking.getService().getName();
+        Payments payments = modelMapper.map(responseDTO.getBookingDetail().getPayment(), Payments.class);
+        String productName = responseDTO.getService().getName();
         String description = "Thanh toan don hang";
         String baseUrl = "http://localhost:8080/api/v1/payOS";
         String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
-                .queryParam("bookingId", bookingId).toUriString();
+                .queryParam("bookingId", responseDTO.getId()).toUriString();
         BigDecimal price = payments.getFinalPrice();
         String currentTimeString = String.valueOf(new Date().getTime());
         Long orderCodee = Long.parseLong(currentTimeString.substring(currentTimeString.length() - 6));

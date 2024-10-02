@@ -1,5 +1,6 @@
 package com.fpu.exe.cleaninghub.controller;
 
+import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
 import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.PayOsService;
@@ -21,9 +22,9 @@ public class PayOSController {
     private final BookingService bookingService;
     private Long orderCode;
     @PostMapping()
-    public ResponseEntity<?> checkOut(HttpServletRequest request, @RequestParam Integer bookingId) {
+    public ResponseEntity<?> checkOut(HttpServletRequest request, @RequestBody CreateBookingRequestDTO dto) {
         try {
-            CheckoutResponseData data = payOsService.createCheckoutUrl(request, bookingId);
+            CheckoutResponseData data = payOsService.createCheckoutUrl(request, dto);
             orderCode = data.getOrderCode();
             return ResponseEntity.status(HttpStatus.CREATED).body(API.Response.success(data.getCheckoutUrl()));
         } catch (Exception e) {

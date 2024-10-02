@@ -177,7 +177,7 @@ public class BookingServiceImpl implements BookingService {
         // Determine payment status based on payment method
         PaymentStatus paymentStatus = null;
 
-        if (createBookingRequestDTO.getPaymentMethod() == PaymentMethod.CASH) {
+        if (createBookingRequestDTO.getPaymentMethod() == PaymentMethod.CASH || createBookingRequestDTO.getPaymentMethod() == PaymentMethod.PAYOS) {
             // Cash payments are completed after the service is done
             paymentStatus = PaymentStatus.PENDING; // Pending until the service is completed
         }
@@ -288,8 +288,19 @@ public class BookingServiceImpl implements BookingService {
                     default -> payments.getPaymentStatus();
                 }
         );
+
+        booking.setStatus(
+                switch (payments.getPaymentStatus()){
+                    case SUCCESS -> BookingStatus.IN_PROGRESS;
+                    case FAILED -> BookingStatus.CANCELLED;
+                    default -> booking.getStatus();
+                }
+        );
+
+
         payments.setTransactionId(String.valueOf(orderCode));
         paymentRepository.save(payments);
+        bookingRepository.save(booking);
     }
 
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher, Integer numberOfWorker) {
