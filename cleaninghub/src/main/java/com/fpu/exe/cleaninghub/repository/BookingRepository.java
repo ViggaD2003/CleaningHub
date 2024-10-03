@@ -16,9 +16,11 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     @Query("SELECT b FROM Booking b " +
             "WHERE b.user.id = :userId AND " +
-            "b.status LIKE %:searchTerm% OR " +
-            "b.service.name LIKE %:searchTerm%")
-    Page<Booking> findByUserId(Integer userId, String searchTerm, Pageable pageable);
+            "(COALESCE(:searchTerm, '') = '' OR " +
+            "b.address LIKE %:searchTerm% OR " +
+            "b.service.name LIKE %:searchTerm%)")
+    Page<Booking> findByUserId(Integer userId, @Param("searchTerm") String searchTerm, Pageable pageable);
+
 
 
     Optional<Booking> findByIdAndUserId(Integer bookingId, Integer userId);

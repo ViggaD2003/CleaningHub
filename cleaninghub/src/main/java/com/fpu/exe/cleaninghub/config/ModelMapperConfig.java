@@ -13,7 +13,6 @@ public class ModelMapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
-        // Customize the mapping to ensure inherited fields are mapped
         modelMapper.addMappings(new PropertyMap<BookingDetail, BookingDetailResponseDto>() {
             @Override
             protected void configure() {

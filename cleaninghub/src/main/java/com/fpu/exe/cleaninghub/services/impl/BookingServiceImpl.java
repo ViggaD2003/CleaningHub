@@ -77,39 +77,12 @@ public class BookingServiceImpl implements BookingService {
     public BookingDetailResponseDto getBookingDetail(HttpServletRequest request, Integer bookingId) {
         User currentUser = getCurrentUser(request);
         Integer userId = currentUser.getId();
-        Booking booking = bookingRepository.findByIdAndUserId(bookingId, userId).orElseThrow(() -> new IllegalArgumentException("Booking not found or you do not have access to this booking"));
-        BookingDetailResponseDto dto = new BookingDetailResponseDto();
-        dto.setId(booking.getId());
-        dto.setCreatedDate(booking.getCreatedDate());
-        dto.setUpdatedDate(booking.getUpdatedDate());
-        if(booking.getBookingDetail() != null){
-            BookingDetail bookingDetail = booking.getBookingDetail();
-            Voucher voucher = bookingDetail.getVoucher();
-            if (voucher != null){
-                VoucherResponseDto voucherDto = new VoucherResponseDto();
-                voucherDto.setId(voucher.getId());
-                voucherDto.setAmount(voucher.getAmount());
-                voucherDto.setPercentage(voucher.getPercentage());
-                voucherDto.setCreateDate(voucher.getCreateDate());
-                voucherDto.setUpdateDate(voucher.getUpdateDate());
-                voucherDto.setExpiredDate(voucher.getExpiredDate());
-                dto.setVoucher(voucherDto);
-            }
-            PaymentResponseDto paymentDto = modelMapper.map(bookingDetail.getPayment(), PaymentResponseDto.class);
-            dto.setPayment(paymentDto);
-        }
-        return dto;
-    }
 
-    private BookingResponseDto convertToDto(Booking booking) {
-        BookingResponseDto dto = new BookingResponseDto();
-        dto.setId(booking.getId());
-        dto.setStatus(booking.getStatus());
-        dto.setBookingDate(booking.getCreatedDate());
-        dto.setAddress(booking.getAddress());
-        dto.setServiceName(booking.getService().getName());
-        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().getFullName() : null);
-        return dto;
+        // Retrieve booking and validate ownership
+        Booking booking = bookingRepository.findByIdAndUserId(bookingId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found or you do not have access to this booking"));
+
+        return mapToBookingDetailResponseDto(booking);
     }
 
     public User getCurrentUser(HttpServletRequest request) {
@@ -304,15 +277,58 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher, Integer numberOfWorker) {
-
         Double basePrice = service.getBasePrice();
-
         double finalPrice = (double) 0;
         finalPrice += basePrice + ((duration.getPrice() * duration.getDurationInHours()) * numberOfWorker);
         if(voucher != null){
             finalPrice = finalPrice * voucher.getPercentage() / 100;
         }
-
         return BigDecimal.valueOf(finalPrice).setScale(3,RoundingMode.HALF_DOWN);
+    }
+    private BookingDetailResponseDto mapToBookingDetailResponseDto(Booking booking) {
+        BookingDetailResponseDto dto = new BookingDetailResponseDto();
+        dto.setId(booking.getId());
+
+        BookingDetail bookingDetail = booking.getBookingDetail();
+        if (bookingDetail != null) {
+            dto.setVoucher(mapToVoucherResponseDto(bookingDetail.getVoucher()));
+            dto.setPayment(mapToPaymentResponseDto(bookingDetail.getPayment()));
+        }
+
+        dto.setServiceName(booking.getService() != null ? booking.getService().getName() : null);
+        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().getFullName() : null);
+        dto.setAddress(booking.getAddress());
+        dto.setStartDate(booking.getStartDate());
+        dto.setEndDate(booking.getEndDate());
+
+        return dto;
+    }
+
+    private VoucherResponseDto mapToVoucherResponseDto(Voucher voucher) {
+        if (voucher == null) return null;
+
+        VoucherResponseDto voucherDto = new VoucherResponseDto();
+        voucherDto.setId(voucher.getId());
+        voucherDto.setAmount(voucher.getAmount());
+        voucherDto.setPercentage(voucher.getPercentage());
+        voucherDto.setCreateDate(voucher.getCreateDate());
+        voucherDto.setUpdateDate(voucher.getUpdateDate());
+        voucherDto.setExpiredDate(voucher.getExpiredDate());
+        return voucherDto;
+    }
+
+    private PaymentResponseDto mapToPaymentResponseDto(Payments payment) {
+        return payment != null ? modelMapper.map(payment, PaymentResponseDto.class) : null;
+    }
+
+    private BookingResponseDto convertToDto(Booking booking) {
+        BookingResponseDto dto = new BookingResponseDto();
+        dto.setId(booking.getId());
+        dto.setStatus(booking.getStatus());
+        dto.setBookingDate(booking.getCreatedDate());
+        dto.setAddress(booking.getAddress());
+        dto.setServiceName(booking.getService().getName());
+        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().getFullName() : null);
+        return dto;
     }
 }
