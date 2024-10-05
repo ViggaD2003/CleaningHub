@@ -34,9 +34,4 @@ public class Duration {
     @OneToMany(mappedBy = "duration")
     @JsonIgnore
     private Set<Booking> bookings;
-
-    @ManyToOne
-    @JoinColumn(name = "service_id")
-    @JsonIgnore
-    private Service service;
 }

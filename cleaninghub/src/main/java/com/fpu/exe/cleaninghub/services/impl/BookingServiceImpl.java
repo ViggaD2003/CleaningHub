@@ -119,14 +119,12 @@ public class BookingServiceImpl implements BookingService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Fetch the selected service and duration
-        com.fpu.exe.cleaninghub.entity.Service serviceSelected = serviceRepository
-                .findById(createBookingRequestDTO.getServiceId())
-                .orElseThrow(() -> new RuntimeException("Service not found"));
+
 
         Duration durationSelected = durationRepository
-                .findByIdAndServiceId(createBookingRequestDTO.getDurationId(), serviceSelected.getId())
-                .orElseThrow(() -> new RuntimeException("Duration not found"));
+                .findById(createBookingRequestDTO.getDurationId()).get();
+
+        com.fpu.exe.cleaninghub.entity.Service service = serviceRepository.findById(createBookingRequestDTO.getServiceId()).get();
 
         LocalDateTime endTime = createBookingRequestDTO.getStartTime().plusHours(durationSelected.getDurationInHours());
         List<User> availableStaffs = userRepository.findStaffByBookingTime(createBookingRequestDTO.getStartTime(), endTime);
@@ -145,7 +143,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         // Calculate the final price based on service, duration, and voucher
-        BigDecimal finalPrice = calculateFinalPrice(serviceSelected, durationSelected, voucherSelected, createBookingRequestDTO.getNumberOfWorker());
+        BigDecimal finalPrice = calculateFinalPrice(service, durationSelected, voucherSelected, createBookingRequestDTO.getNumberOfWorker());
 
         // Determine payment status based on payment method
         PaymentStatus paymentStatus = null;
@@ -174,7 +172,7 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = Booking.builder()
                 .bookingDetail(bookingDetail)
-                .service(serviceSelected)
+                .service(service)
                 .staff(staff)
                 .user(user)
                 .duration(durationSelected)
@@ -199,7 +197,7 @@ public class BookingServiceImpl implements BookingService {
                 .status(booking.getStatus())
                 .address(booking.getAddress())
                 .bookingDetail(modelMapper.map(bookingDetail, BookingDetailResponseDto.class))
-                .service(modelMapper.map(serviceSelected, ServiceDetailResponseDTO.class))
+                .service(modelMapper.map(service, ServiceDetailResponseDTO.class))
                 .staff(modelMapper.map(staff, UserResponseDTO.class))
                 .user(modelMapper.map(user, UserResponseDTO.class))
                 .duration(modelMapper.map(durationSelected, DurationResponseDTO.class))

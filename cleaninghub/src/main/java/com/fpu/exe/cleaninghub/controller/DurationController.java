@@ -19,9 +19,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DurationController {
     private final DurationService durationService;
-    @GetMapping("/{id}")
-    public ResponseEntity<List<Duration>> getDurationById(@PathVariable("id") int id) {
-            List<Duration> durationList = durationService.getDurationsByServiceId(id);
+    @GetMapping("/getAll")
+    public ResponseEntity<List<Duration>> getDurationById() {
+            List<Duration> durationList = durationService.getAllDurations();
             if (durationList.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }

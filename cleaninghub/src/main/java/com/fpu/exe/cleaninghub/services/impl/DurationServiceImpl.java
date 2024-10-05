@@ -12,8 +12,10 @@ import java.util.List;
 public class DurationServiceImpl implements DurationService {
     @Autowired
     private DurationRepository durationRepository;
+
     @Override
-    public List<Duration> getDurationsByServiceId(int serviceId) {
-        return durationRepository.findByServiceId(serviceId);
+    public List<Duration> getAllDurations() {
+        return durationRepository.findAll();
     }
+
 }

@@ -5,5 +5,5 @@ import com.fpu.exe.cleaninghub.entity.Duration;
 import java.util.List;
 
 public interface DurationService {
-    List<Duration> getDurationsByServiceId(int serviceId);
+    List<Duration> getAllDurations();
 }
