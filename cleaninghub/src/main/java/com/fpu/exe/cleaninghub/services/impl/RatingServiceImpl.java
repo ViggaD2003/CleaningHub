@@ -53,5 +53,11 @@ public class RatingServiceImpl implements RatingService {
         return listRatingOfStaff.size();
     }
 
-    
+    @Override
+    public List<User> getFiveUserHaveHighestAverageRating() {
+        List<User> list = userRepository.getFiveUserHaveHighestAverageRating();
+        return list;
+    }
+
+
 }

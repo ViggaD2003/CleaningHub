@@ -28,4 +28,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "AND u.accountLocked = true\n")
 
     List<User> findStaffByBookingTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
+    @Query("SELECT u FROM User u WHERE u.role.id = 3 ORDER BY u.averageRating DESC LIMIT 5")
+    List<User> getFiveUserHaveHighestAverageRating();
 }
