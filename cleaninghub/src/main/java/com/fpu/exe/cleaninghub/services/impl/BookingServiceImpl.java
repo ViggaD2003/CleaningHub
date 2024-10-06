@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -113,8 +114,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO) {
 
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = userDetails.getUsername();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -183,13 +184,13 @@ public class BookingServiceImpl implements BookingService {
                 .build();
 
         bookingRepository.save(booking);
-        try {
-            simpMessagingTemplate.convertAndSend("/topic/notifications", booking);
-            log.info("Websocket notification sent to staff successfully for booking id: {}", booking.getId());
-        } catch (Exception e){
-            log.error("Failed to send Websocket notification to staff for booking id: {}", booking.getId());
-            throw new RuntimeException("Failed to send Websocket notification");
-        }
+//        try {
+//            simpMessagingTemplate.convertAndSendToUser(staff.getEmail(),"/queue/notifications", booking);
+//            log.info("Websocket notification sent to staff successfully for booking id: {}", staff.getEmail());
+//        } catch (Exception e){
+//            log.error("Failed to send Websocket notification to staff for booking id: {}", booking.getId());
+//            throw new RuntimeException("Failed to send Websocket notification");
+//        }
 
         // Create and return the final response
         return CreateBookingResponseDTO.builder()
