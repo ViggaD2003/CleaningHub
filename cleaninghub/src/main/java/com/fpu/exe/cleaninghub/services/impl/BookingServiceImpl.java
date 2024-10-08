@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -213,6 +214,12 @@ public class BookingServiceImpl implements BookingService {
     public Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable) {
         Page<Booking> bookings = bookingRepository.findByStaffId(getCurrentUser(request).getId(),bookingStatus, pageable);
         return bookings.map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class));
+    }
+
+    @Override
+    public List<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request) {
+        List<Booking> bookings = bookingRepository.findByStaffIdWithStatusPending(getCurrentUser(request).getId());
+        return bookings.stream().map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class)).toList();
     }
 
     @Override

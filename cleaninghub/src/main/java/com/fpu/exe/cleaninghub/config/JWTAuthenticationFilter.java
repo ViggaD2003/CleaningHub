@@ -38,6 +38,12 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         final String jwtToken;
         final String username;
 
+//        String path = request.getServletPath();
+//        if (path.startsWith("/api/v1/auth/refresh")) {
+//            filterChain.doFilter(request, response);
+//            return;
+//        }
+
         // Kiểm tra xem header có chứa Bearer token không
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);

@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
-
+import java.util.List;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     @Query("SELECT b FROM Booking b " +
@@ -30,5 +30,10 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Page<Booking> findByStaffId(@Param("staffId") Integer staffId,
                                 @Param("bookingStatus") BookingStatus bookingStatus,
                                 Pageable pageable);
+
+    @Query("SELECT b FROM Booking b " +
+            "WHERE b.staff.id = :staffId " +
+            "AND b.status = 'PENDING' ")
+    List<Booking> findByStaffIdWithStatusPending(Integer staffId);
 
 }

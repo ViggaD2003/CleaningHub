@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
@@ -71,6 +72,18 @@ public class BookingController {
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
         }
     }
+
+
+    @GetMapping("/get-by-current-staff-pending")
+    public ResponseEntity<?> GetAllBookingByStaffPending(HttpServletRequest request){
+        try {
+            List<?> bookings = bookingService.getAllStaffBookings(request);
+            return ResponseEntity.ok((API.Response.success(bookings)));
+        } catch (Exception e){
+            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
+        }
+    }
+
     @PutMapping("/chang-booking-status/{id}/{bookingStatus}")
     public ResponseEntity<?> ChangeBookingStatus(HttpServletRequest request, @PathVariable BookingStatus bookingStatus, @PathVariable Integer id){
         try{
