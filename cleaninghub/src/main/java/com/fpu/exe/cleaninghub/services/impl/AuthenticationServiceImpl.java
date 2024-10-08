@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Service
@@ -137,27 +138,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final String authHeader = request.getHeader(AUTHORIZATION);
+    public ResponseEntity<JwtAuthenticationResponse> refreshToken(RefreshTokenRequest refreshTokenRequest, HttpServletResponse response){
+        final String authHeader = refreshTokenRequest.getToken();
         final String refreshToken;
         final String email;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            response.setStatus(UNAUTHORIZED.value());
-            response.setContentType("text/plain");
-            try {
-                response.getWriter().write("No JWT token found in the request header");
-            } catch (IOException ex) {
-                throw new BadRequestException(ex.getMessage() + "ERROR");
-            }
-            return;
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(null);
         }
+
         refreshToken = authHeader.substring(7);
         email = jwtService.extractUsername(refreshToken);
         final Token currentRefreshToken = tokenRepository.findByRefreshToken(refreshToken).orElse(null);
 
         if (email != null && currentRefreshToken != null) {
-            var user = this.userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Email is not found !"));
+            var user = this.userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("Email is not found !"));
             if ((jwtService.isTokenValid(refreshToken, user)) &&
                     !currentRefreshToken.isRevoked() && !currentRefreshToken.isExpired()) {
                 var accessToken = jwtService.generateToken(user);
@@ -165,33 +162,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
                 revokeAllUserToken(user);
                 saveUserToken(user, accessToken, newRefreshToken);
-                
-                var authResponse = JwtAuthenticationResponse.builder()
+
+                JwtAuthenticationResponse authResponse = JwtAuthenticationResponse.builder()
                         .token(accessToken)
-                        .refreshToken(newRefreshToken);
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-                ResponseEntity.ok(authResponse);
+                        .refreshToken(newRefreshToken)
+                        .build();
+
+                return ResponseEntity.ok(authResponse);
             } else {
-                response.setStatus(UNAUTHORIZED.value());
-                response.setContentType("text/plain");
-                try {
-                    response.getWriter().write("JWT token has expired and revoked");
-                } catch (IOException ex) {
-                    throw new BadRequestException(ex.getMessage() + "ERROR");
-                }
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(null);
             }
         } else {
-            response.setStatus(UNAUTHORIZED.value());
-            response.setContentType("text/plain");
-            try {
-                response.getWriter().write("Unauthorized");
-            } catch (IOException e) {
-//            logger.error("Error writing unauthorized response", e);
-                throw new BadRequestException("ERROR");
-            }
-            ResponseEntity.status(UNAUTHORIZED).body("Unauthorized");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(null);
         }
     }
+
 
     @Override
     public Object getUserInformation(HttpServletRequest request) {

@@ -72,8 +72,8 @@
         }
 
         @PostMapping("/refresh")
-        public void refresh(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            authenticationService.refreshToken(request, response);
+        public ResponseEntity<?> refresh(@RequestBody RefreshTokenRequest refreshTokenRequest, HttpServletResponse response){
+          return authenticationService.refreshToken(refreshTokenRequest, response);
         }
 
         @GetMapping("/hello")

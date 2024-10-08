@@ -65,13 +65,11 @@ public class SecurityConfiguration {
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                                .requestMatchers("/api/v1/**", "/swagger-resources/**",
-                                        "/webjars/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/oauth2/authorization/google",
+                                .requestMatchers("/api/v1/auth/**", "/api/v1/categories/getAll", "/api/v1/bookings/**", "/api/v1/user/**" , "/api/v1/services/**", "/api/v1/payOS/**" , "/api/v1/durations/**",  "/swagger-resources/**",
+                                        "/webjars/**", "/swagger-ui.html", "/api/v1/vouchers/**", "/v3/api-docs/**", "/swagger-ui/**", "/oauth2/authorization/google",
                                         "/ws/**")
                                 .permitAll()
-//                        .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-//                        .requestMatchers("/api/v1/user/**").hasRole("USER")
-//                        .anyRequest().authenticated())
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler)
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))

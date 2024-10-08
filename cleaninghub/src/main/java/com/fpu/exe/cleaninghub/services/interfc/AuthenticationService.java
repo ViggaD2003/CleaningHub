@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import javassist.NotFoundException;
 import org.apache.coyote.BadRequestException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -19,7 +20,7 @@ public interface AuthenticationService {
     JwtAuthenticationResponse signIn(SignInRequest signInRequest);
 
     //    JwtAuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest);
-    void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException;
+    ResponseEntity<JwtAuthenticationResponse> refreshToken(RefreshTokenRequest refreshTokenRequest, HttpServletResponse response);
 
     Object getUserInformation(HttpServletRequest request);
 
