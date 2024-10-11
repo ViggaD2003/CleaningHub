@@ -4,7 +4,7 @@ import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Getter
@@ -16,7 +16,7 @@ public class CreateBookingResponseDTO {
     private BookingDetailResponseDto bookingDetail;
     private String address;
     private UserResponseDTO user;
-    private UserResponseDTO staff;
+    private List<UserResponseDTO> staff;
     private ServiceDetailResponseDTO service;
     private DurationResponseDTO duration;
     private LocalDateTime createdDate;

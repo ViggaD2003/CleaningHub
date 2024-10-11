@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Data
@@ -19,5 +19,5 @@ public class BookingResponseDto {
     private LocalDateTime bookingDate;
     private String address;
     private String serviceName;
-    private String staffName;
+    private List<String> staffName;
 }

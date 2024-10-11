@@ -25,14 +25,16 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     Optional<Booking> findByIdAndUserId(Integer bookingId, Integer userId);
     @Query("SELECT b FROM Booking b " +
-            "WHERE b.staff.id = :staffId " +
+            "JOIN b.staff s " +
+            "WHERE s.id = :staffId " +
             "AND b.status = :bookingStatus")
     Page<Booking> findByStaffId(@Param("staffId") Integer staffId,
                                 @Param("bookingStatus") BookingStatus bookingStatus,
                                 Pageable pageable);
 
     @Query("SELECT b FROM Booking b " +
-            "WHERE b.staff.id = :staffId " +
+            "JOIN b.staff s " +
+            "WHERE s.id = :staffId " +
             "AND b.status = 'PENDING' ")
     List<Booking> findByStaffIdWithStatusPending(Integer staffId);
 

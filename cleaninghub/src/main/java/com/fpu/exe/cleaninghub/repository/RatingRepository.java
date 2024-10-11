@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 public interface RatingRepository extends JpaRepository<Rating, Integer> {
 
-    @Query("SELECT r FROM Rating r WHERE r.booking.staff.id = :staffId")
+    @Query("SELECT r FROM Rating r " +
+            "JOIN r.booking b " +  // Join vào booking từ Rating
+            "JOIN b.staff s " +    // Join vào staff thông qua quan hệ ManyToMany của Booking
+            "WHERE s.id = :staffId")
     List<Rating> findAllByStaffId(int staffId);
 }

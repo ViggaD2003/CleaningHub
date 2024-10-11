@@ -20,12 +20,11 @@ import java.util.List;
 public class DurationController {
     private final DurationService durationService;
     @GetMapping("/getAll")
-    public ResponseEntity<List<Duration>> getDurationById() {
+    public ResponseEntity<List<Duration>> getAllDurations() {
             List<Duration> durationList = durationService.getAllDurations();
             if (durationList.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }
             return ResponseEntity.ok(durationList);
     }
-
 }

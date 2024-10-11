@@ -43,9 +43,14 @@ public class Booking extends Auditable {
     @Column(name = "address")
     private String address;
 
-    @ManyToOne
-    @JoinColumn(name = "staff_id")
-    private User staff;
+    // Thay đổi từ ManyToOne thành ManyToMany
+    @ManyToMany
+    @JoinTable(
+            name = "booking_staff",
+            joinColumns = @JoinColumn(name = "booking_id"),
+            inverseJoinColumns = @JoinColumn(name = "staff_id")
+    )
+    private List<User> staff;
 
     @ManyToOne
     @JoinColumn(name = "service_id")

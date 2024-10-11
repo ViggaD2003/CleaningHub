@@ -117,8 +117,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
     private List<Booking> booking;
 
+    @ManyToMany(mappedBy = "staff")
     @JsonIgnore
-    @OneToMany(mappedBy = "staff", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
     private List<Booking> assignOfStaffs;
 
 //    @JsonIgnore
@@ -158,7 +158,7 @@ public class User implements UserDetails {
 
 
     public String getFullName() {
-        return firstName + "" + lastName;
+        return firstName + " " + lastName;
     }
 
 }

@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -134,7 +135,8 @@ public class BookingServiceImpl implements BookingService {
         if(availableStaffs.isEmpty()){
             throw new RuntimeException("The staffs are busy at this time. Please choose another time");
         }
-        User staff = findAvailableStaff(availableStaffs);
+        List<User> listStaff = findAvailableStaff(availableStaffs, createBookingRequestDTO.getNumberOfWorker());
+
 
         // Handle voucher if provided
         Voucher voucherSelected = null;
@@ -175,7 +177,7 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = Booking.builder()
                 .bookingDetail(bookingDetail)
                 .service(service)
-                .staff(staff)
+                .staff(listStaff)
                 .user(user)
                 .duration(durationSelected)
                 .address(createBookingRequestDTO.getAddress())
@@ -200,7 +202,7 @@ public class BookingServiceImpl implements BookingService {
                 .address(booking.getAddress())
                 .bookingDetail(modelMapper.map(bookingDetail, BookingDetailResponseDto.class))
                 .service(modelMapper.map(service, ServiceDetailResponseDTO.class))
-                .staff(modelMapper.map(staff, UserResponseDTO.class))
+                .staff(listStaff.stream().map(staff -> modelMapper.map(staff, UserResponseDTO.class)).toList())
                 .user(modelMapper.map(user, UserResponseDTO.class))
                 .duration(modelMapper.map(durationSelected, DurationResponseDTO.class))
                 .createdDate(booking.getCreatedDate())
@@ -213,22 +215,35 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable) {
         Page<Booking> bookings = bookingRepository.findByStaffId(getCurrentUser(request).getId(),bookingStatus, pageable);
-        return bookings.map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class));
+        Page<ListBookingResponseDTO> pageList = bookings.map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class));
+        for(ListBookingResponseDTO x : pageList){
+            x.setCurrentStaff(getCurrentUser(request));
+        }
+        return pageList;
     }
 
     @Override
     public List<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request) {
         List<Booking> bookings = bookingRepository.findByStaffIdWithStatusPending(getCurrentUser(request).getId());
-        return bookings.stream().map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class)).toList();
+        List<ListBookingResponseDTO> list = bookings.stream().map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class)).toList();
+        for(ListBookingResponseDTO x : list){
+            x.setCurrentStaff(getCurrentUser(request));
+        }
+        return list;
     }
+
 
     @Override
     public void ChangeBookingStatus(BookingStatus bookingStatus, Integer id, HttpServletRequest request) {
         User currentUser = getCurrentUser(request);
         Booking booking = bookingRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
         Payments payments = booking.getBookingDetail().getPayment();
-        if (!Objects.equals(currentUser.getId(), booking.getStaff().getId()))
-            throw new RuntimeException("You are not staff for this service!!!!");
+
+        booking.getStaff().forEach(staff -> {
+            if (!Objects.equals(currentUser.getId(), staff.getId()))
+                throw new RuntimeException("You are not staff for this service!!!!");
+        });
+
         booking.setStatus(
                 switch (bookingStatus){
                     case PENDING -> BookingStatus.PENDING;
@@ -249,11 +264,15 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public User findAvailableStaff(List<User> availableStaffs) {
+    public List<User> findAvailableStaff(List<User> availableStaffs, Integer numberOfWorker) {
         availableStaffs.sort(Comparator.comparing(User::getAverageRating)
                 .thenComparing(staff -> ratingService.numberOfRatings(staff.getId()))
                 .reversed());
-        return availableStaffs.get(0);
+
+        List<User> staffs = availableStaffs.stream()
+                .limit(numberOfWorker)  // Giới hạn theo numberOfWorker
+                .collect(Collectors.toList());
+        return staffs;
     }
 
     @Override
@@ -302,7 +321,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         dto.setServiceName(booking.getService() != null ? booking.getService().getName() : null);
-        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().getFullName() : null);
+        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(staff ->  staff.getFullName()).toList() : null);
         dto.setAddress(booking.getAddress());
         dto.setStartDate(booking.getStartDate());
         dto.setEndDate(booking.getEndDate());
@@ -334,7 +353,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setBookingDate(booking.getCreatedDate());
         dto.setAddress(booking.getAddress());
         dto.setServiceName(booking.getService().getName());
-        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().getFullName() : null);
+        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(staff ->  staff.getFullName()).toList() : null);
         return dto;
     }
 }

@@ -20,6 +20,6 @@ public interface BookingService {
     Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable);
     List<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request);
     void ChangeBookingStatus(BookingStatus bookingStatus, Integer id, HttpServletRequest request);
-    User findAvailableStaff(List<User> availableStaffs);
+    List<User> findAvailableStaff(List<User> availableStaffs, Integer numberOfWorker);
     void changePaymentStatusOfBooking(Long orderCode, Integer bookingId, PaymentStatus paymentStatus);
 }
