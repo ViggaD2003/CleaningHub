@@ -51,9 +51,9 @@ jobs:
                   username: ${{secrets.DOCKER_USERNAME}}
                   password: ${{secrets.DOCKER_TOKEN}}
             - name: Clean Container
-              uses: docker compose -f docker-compose.prod.yaml -p cleaning-hub-application down cleaning-hub --rmi all -v
+              run: docker compose -f docker-compose.prod.yaml -p cleaning-hub-application down cleaning-hub --rmi all -v
               continue-on-error: true
             - name: Pull Images
-              uses: docker compose -f docker-compose.prod.yaml pull cleaning-hub
+              run: docker compose -f docker-compose.prod.yaml pull cleaning-hub
             - name: Deploy API
-              uses: docker compose -f docker-compose.prod.yaml -p cleaning-hub-application up cleaning-hub -d
+              run: docker compose -f docker-compose.prod.yaml -p cleaning-hub-application up cleaning-hub -d
