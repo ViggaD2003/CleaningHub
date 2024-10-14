@@ -1,40 +1,8 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: 12345
-      MYSQL_DATABASE: cleaninghub
-    ports:
-      - "3307:3306"  # Exposing MySQL on port 3307 of the host
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p12345"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - cleaninghub-net
-
   cleaning-hub:
-    build: .
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/cleaninghub
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 12345
-    ports:
-      - "8080:8080"  # Exposing Spring Boot app on port 8080 of the host
-    depends_on:
-      mysql:
-        condition: service_healthy
-    networks:
-      - cleaninghub-net
-
-volumes:
-  mysql_data:
-
-networks:
-  cleaninghub-net:
-    driver: bridge
+    image: ${DOCKER_USERNAME}/cleaning-hub:latest
+    build:
+      context: .
+      dockerfile: Dockerfile

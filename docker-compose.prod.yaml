@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  cleaning-hub:
+    container_name: cleaning_hub_api
+    image: ${DOCKER_USERNAME}/cleaning-hub:latest
+    labels:
+      - io.portainer.accesscontrol.teams=cleaning-hub
+      - io.portainer.accesscontrol.restricted
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SEC_KEY: ${JWT_SEC_KEY}
+      EMAIL_SERVER_USERNAME: ${EMAIL_SERVER_USERNAME}
+      EMAIL_SERVER_PASSWORD: ${EMAIL_SERVER_PASSWORD}
+      FE_ACTIVITION_URL: ${FE_ACTIVITION_URL}
+      PAYOS_CLIENT_ID: ${PAYOS_CLIENT_ID}
+      PAYOS_API_KEY: ${PAYOS_API_KEY}
+      PAYOS_CHECKSUM_KEY: ${PAYOS_CHECKSUM_KEY}
+    ports:
+      - "8080:8080"
+    networks:
+      - cleaninghub-net
+
+networks:
+  cleaninghub-net:
+    name: cleaning_hub_networks
+    external: true
