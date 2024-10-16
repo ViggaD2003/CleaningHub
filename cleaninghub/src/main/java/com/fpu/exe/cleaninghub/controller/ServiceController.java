@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,6 +30,7 @@ public class ServiceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createService(@Valid @RequestBody CreateServiceRequestDto serviceRequestDto) {
         try {
             CreateServiceResponseDto response = serviceService.createService(serviceRequestDto);
@@ -39,6 +41,7 @@ public class ServiceController {
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateService(@PathVariable Integer id,
                                            @Valid @RequestBody UpdateServiceRequestDto updateServiceRequestDto) {
         try {
@@ -59,6 +62,7 @@ public class ServiceController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteService(@PathVariable Integer id) {
         try {
             serviceService.deleteService(id);
