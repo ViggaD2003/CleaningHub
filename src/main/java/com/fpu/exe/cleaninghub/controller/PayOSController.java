@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import vn.payos.type.CheckoutResponseData;
@@ -22,6 +23,7 @@ public class PayOSController {
     private final BookingService bookingService;
     private Long orderCode;
     @PostMapping()
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> checkOut(HttpServletRequest request, @RequestBody CreateBookingRequestDTO dto) {
         try {
             CheckoutResponseData data = payOsService.createCheckoutUrl(request, dto);

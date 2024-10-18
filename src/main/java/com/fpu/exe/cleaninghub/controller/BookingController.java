@@ -41,6 +41,7 @@ public class BookingController {
         }
     }
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> getBookingDetail(
             HttpServletRequest request,
             @PathVariable("id") Integer bookingId) {
@@ -53,6 +54,7 @@ public class BookingController {
         }
     }
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> CreateBooking(@RequestBody @Valid CreateBookingRequestDTO createBookingRequestDTO){
         try{
             CreateBookingResponseDTO response = bookingService.createBooking(createBookingRequestDTO);
@@ -62,6 +64,7 @@ public class BookingController {
         }
     }
     @GetMapping("/get-by-current-staff")
+    @PreAuthorize("hasRole('ROLE_STAFF')")
     public ResponseEntity<?> GetAllBookingByStaffId(HttpServletRequest request, @RequestParam BookingStatus bookingStatus,@RequestParam(defaultValue = "0") Integer page,
                                                     @RequestParam(defaultValue = "10") Integer size){
         try{
@@ -75,6 +78,7 @@ public class BookingController {
 
 
     @GetMapping("/get-by-current-staff-pending")
+    @PreAuthorize("hasRole('ROLE_STAFF')")
     public ResponseEntity<?> GetAllBookingByStaffPending(HttpServletRequest request){
         try {
             List<?> bookings = bookingService.getAllStaffBookings(request);
@@ -85,6 +89,7 @@ public class BookingController {
     }
 
     @PutMapping("/chang-booking-status/{id}/{bookingStatus}")
+    @PreAuthorize("hasRole('ROLE_STAFF')")
     public ResponseEntity<?> ChangeBookingStatus(HttpServletRequest request, @PathVariable BookingStatus bookingStatus, @PathVariable Integer id){
         try{
             bookingService.ChangeBookingStatus(bookingStatus, id, request);
