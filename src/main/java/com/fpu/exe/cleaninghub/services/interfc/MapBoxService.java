@@ -1,8 +1,11 @@
 package com.fpu.exe.cleaninghub.services.interfc;
 
-import reactor.core.publisher.Mono;
+import com.fpu.exe.cleaninghub.dto.response.StaffDistanceInfo;
+import com.fpu.exe.cleaninghub.entity.User;
+
+import java.util.List;
 
 public interface MapBoxService {
 
-    Mono<String> calculateDistanceBetweenTwoLocation(Double lat1, Double lng1, Double lat2, Double lng2);
+    List<StaffDistanceInfo> calculateDistanceBetweenTwoLocation(StringBuilder coordinates, List<User> availableStaffs) throws Exception;
 }

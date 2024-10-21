@@ -22,7 +22,13 @@ public class CreateBookingRequestDTO {
     private Integer numberOfWorker;
 
     @NotNull(message = "Address cannot be null")
-    private String address;  // Make sure this class is also properly validated
+    private String address;
+
+    @NotNull(message = "Latitude cannot be null")
+    private Double latitude;
+
+    @NotNull(message = "Longitude cannot be null")
+    private Double longitude;
 
     private Integer voucherId;  // Optional, hence no validation required
 

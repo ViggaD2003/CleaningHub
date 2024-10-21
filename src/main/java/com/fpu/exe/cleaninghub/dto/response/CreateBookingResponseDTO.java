@@ -15,6 +15,8 @@ public class CreateBookingResponseDTO {
     private BookingStatus status;
     private BookingDetailResponseDto bookingDetail;
     private String address;
+    private Double latitude;
+    private Double longitude;
     private UserResponseDTO user;
     private List<UserResponseDTO> staff;
     private ServiceDetailResponseDTO service;

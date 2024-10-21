@@ -9,6 +9,7 @@ import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
 import com.fpu.exe.cleaninghub.repository.*;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
+import com.fpu.exe.cleaninghub.services.interfc.MapBoxService;
 import com.fpu.exe.cleaninghub.services.interfc.RatingService;
 import groovy.util.logging.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,10 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -61,11 +59,12 @@ public class BookingServiceImpl implements BookingService {
     private BookingDetailRepository bookingDetailRepository;
     @Autowired
     private ModelMapper modelMapper;
-
     @Autowired
     private RatingService ratingService;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private MapBoxService mapBoxService;
 
     @Override
     public Page<BookingResponseDto> searchBookings(HttpServletRequest request, String searchTerm, int pageIndex, int pageSize) {
@@ -115,7 +114,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     @Override
-    public CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO) {
+    public CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -135,8 +134,10 @@ public class BookingServiceImpl implements BookingService {
 
         if(availableStaffs.isEmpty()){
             throw new RuntimeException("The staffs are busy at this time. Please choose another time");
+        } else if (availableStaffs.size() < createBookingRequestDTO.getNumberOfWorker()) {
+            throw new RuntimeException("The staffs are busy at this time");
         }
-        List<User> listStaff = findAvailableStaff(availableStaffs, createBookingRequestDTO.getNumberOfWorker());
+        List<User> listStaff = findAvailableStaff(createBookingRequestDTO.getLongitude(), createBookingRequestDTO.getLatitude(), availableStaffs, createBookingRequestDTO.getNumberOfWorker());
 
 
         // Handle voucher if provided
@@ -180,6 +181,8 @@ public class BookingServiceImpl implements BookingService {
                 .service(service)
                 .staff(listStaff)
                 .user(user)
+                .latitude(createBookingRequestDTO.getLatitude())
+                .longitude(createBookingRequestDTO.getLongitude())
                 .duration(durationSelected)
                 .address(createBookingRequestDTO.getAddress())
                 .status(BookingStatus.PENDING)
@@ -205,6 +208,8 @@ public class BookingServiceImpl implements BookingService {
                 .service(modelMapper.map(service, ServiceDetailResponseDTO.class))
                 .staff(listStaff.stream().map(staff -> modelMapper.map(staff, UserResponseDTO.class)).toList())
                 .user(modelMapper.map(user, UserResponseDTO.class))
+                .latitude(booking.getLatitude())
+                .longitude(booking.getLongitude())
                 .duration(modelMapper.map(durationSelected, DurationResponseDTO.class))
                 .createdDate(booking.getCreatedDate())
                 .updatedDate(booking.getUpdatedDate())
@@ -265,13 +270,27 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<User> findAvailableStaff(List<User> availableStaffs, Integer numberOfWorker) {
-        availableStaffs.sort(Comparator.comparing(User::getAverageRating)
-                .thenComparing(staff -> ratingService.numberOfRatings(staff.getId()))
-                .reversed());
+    public List<User> findAvailableStaff(Double logU, Double latU,List<User> availableStaffs, Integer numberOfWorker) throws Exception {
+        StringBuilder coordinates = new StringBuilder();
+        coordinates.append(logU).append(",").append(latU).append(";");
 
-        List<User> staffs = availableStaffs.stream()
-                .limit(numberOfWorker)  // Giới hạn theo numberOfWorker
+        availableStaffs.forEach(staff -> {
+            coordinates.append(staff.getLongitude()).append(",").append(staff.getLatitude()).append(";");
+        });
+
+        if (coordinates.length() > 0) {
+            coordinates.setLength(coordinates.length() - 1);
+        }
+
+        List<StaffDistanceInfo> staffAvailable = mapBoxService.calculateDistanceBetweenTwoLocation(coordinates, availableStaffs);
+
+        staffAvailable.sort(Comparator.comparingDouble(StaffDistanceInfo::getDurationInMinutes).reversed()
+                .thenComparingDouble(StaffDistanceInfo::getAverageRating).reversed()
+                .thenComparingDouble(staff -> ratingService.numberOfRatings(staff.getStaff().getId())));
+        List<User> staffs = staffAvailable
+                .stream()
+                .limit(numberOfWorker)
+                .map(StaffDistanceInfo::getStaff)// Giới hạn theo numberOfWorker
                 .collect(Collectors.toList());
         return staffs;
     }

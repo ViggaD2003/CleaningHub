@@ -56,6 +56,12 @@ public class Booking extends Auditable {
     @JoinColumn(name = "service_id")
     private Service service;
 
+    @Column(name = "longitude")
+    private Double longitude;
+
+    @Column(name = "latitude")
+    private Double latitude;
+
     @ManyToOne
     @JoinColumn(name = "duration_id")
     private Duration duration;
