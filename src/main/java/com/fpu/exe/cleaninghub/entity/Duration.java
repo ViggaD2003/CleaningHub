@@ -18,9 +18,6 @@ public class Duration {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-//
-//    @Column(name = "area")
-//    private Double area;
 
     @Column(name = "duration_in_hours")
     private Integer durationInHours;

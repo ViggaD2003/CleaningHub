@@ -78,17 +78,6 @@ public class User implements UserDetails {
     @LastModifiedDate
     private LocalDate updateDate;
 
-//    @Column(name = "create_by", nullable = false, updatable = false)
-//    @CreatedBy
-//    @JsonIgnore
-//    private Integer createBy;
-//
-//    @Column(name = "update_by", insertable = false)
-//    @LastModifiedBy
-//    @JsonIgnore
-//    private Integer updateBy;
-
-
     @ManyToOne
     @JsonManagedReference
     @JoinColumn(name = "role_id")
@@ -126,15 +115,6 @@ public class User implements UserDetails {
     @ManyToMany(mappedBy = "staff")
     @JsonIgnore
     private List<Booking> assignOfStaffs;
-
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "staff", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-//    private List<Rating> ratingOfStaff;
-//
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-//    private List<Rating> ratingsOfUser;
-
 
     private String verificationCode;
 

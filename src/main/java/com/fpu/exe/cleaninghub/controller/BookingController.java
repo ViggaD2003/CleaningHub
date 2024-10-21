@@ -113,30 +113,6 @@ public class BookingController {
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong!!", e.getMessage()));
         }
     }
-
-
-//    @GetMapping("/get-map")
-//    public Mono<?> geocode(@RequestParam("longitude-user") Double logU, @RequestParam("latitude-user") Double latU) throws Exception {
-//        try {
-//            // Sử dụng webClient để gọi service và lấy danh sách nhân viên sẵn có
-//            return Mono.fromSupplier(() -> {
-//                try {
-//                    // Gọi service để lấy danh sách nhân viên sắp xếp theo khoảng cách, thời gian và rating
-//                    List<User> availableStaffs = bookingService.findAvailableStaff(logU, latU, 5);
-//                    // Trả về danh sách đã được sắp xếp
-//                    return ResponseEntity.ok(availableStaffs);
-//                } catch (Exception e) {
-//                    // Xử lý lỗi nếu có
-//                    e.printStackTrace();
-//                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error occurred");
-//                }
-//            });
-//        } catch (Exception e) {
-//            // Xử lý ngoại lệ nếu có
-//            e.printStackTrace();
-//            return Mono.error(new RuntimeException("Failed to retrieve data"));
-//        }
-//    }
     }
 
 

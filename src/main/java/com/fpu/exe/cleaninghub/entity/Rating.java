@@ -23,14 +23,6 @@ public class Rating
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
 
-//        @ManyToOne
-//        @JoinColumn(name = "staff_id")
-//        private User staff;
-//
-//        @ManyToOne
-//        @JoinColumn(name = "user_id")
-//        private User user;
-
         @OneToOne(cascade = CascadeType.ALL)
         @JoinColumn(name = "booking_id", referencedColumnName = "id")
         private Booking booking;
