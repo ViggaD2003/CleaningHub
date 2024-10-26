@@ -6,7 +6,6 @@ import com.fpu.exe.cleaninghub.repository.RatingRepository;
 import com.fpu.exe.cleaninghub.repository.UserRepository;
 import com.fpu.exe.cleaninghub.services.interfc.RatingService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -58,6 +57,5 @@ public class RatingServiceImpl implements RatingService {
         List<User> list = userRepository.getFiveUserHaveHighestAverageRating();
         return list;
     }
-
 
 }

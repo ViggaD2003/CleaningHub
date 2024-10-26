@@ -81,7 +81,8 @@ public class SecurityConfiguration {
                                 SecurityContextHolder.clearContext()))
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(user -> user.userService(customOAuth2UserService))
-                        .defaultSuccessUrl("/api/v1/auth/signInGoogle", true));
+                        .defaultSuccessUrl("/api/v1/auth/signInGoogle", true)
+                        .failureUrl("http://localhost:5173/login"));
 
         http.exceptionHandling(exception -> exception
                 .authenticationEntryPoint(beanConfig.authenticationEntryPoint())
