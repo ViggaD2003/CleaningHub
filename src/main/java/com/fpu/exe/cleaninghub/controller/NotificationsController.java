@@ -1,5 +1,6 @@
 package com.fpu.exe.cleaninghub.controller;
 
+import com.fpu.exe.cleaninghub.dto.response.BookingDetailStaffResponse;
 import com.fpu.exe.cleaninghub.dto.response.CreateBookingResponseDTO;
 import com.fpu.exe.cleaninghub.dto.response.UserResponseDTO;
 import com.fpu.exe.cleaninghub.entity.User;
@@ -19,6 +20,10 @@ public class NotificationsController {
         for(UserResponseDTO staff : bookingResponseDTO.getStaff()){
             simpMessagingTemplate.convertAndSendToUser(staff.getEmail(),"/queue/notifications", bookingResponseDTO);
         }
+    }
 
+    @MessageMapping("/notifications/feedback")
+    public void sendNotificationFeedbackToUser(@Payload BookingDetailStaffResponse bookingDetailStaffResponse){
+        simpMessagingTemplate.convertAndSendToUser(bookingDetailStaffResponse.getUser().getEmail(), "/queue/notifications/feedbacks", bookingDetailStaffResponse);
     }
 }

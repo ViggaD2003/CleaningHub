@@ -15,6 +15,7 @@ public class BookingDetailStaffResponse {
     private String address;
 
     private UserResponseDTO user;
+    private UserResponseDTO staff;
 
     private BookingDetailResponseDto bookingDetailResponseDto;
 
