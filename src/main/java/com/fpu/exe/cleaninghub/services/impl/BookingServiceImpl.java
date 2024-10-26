@@ -13,10 +13,10 @@ import com.fpu.exe.cleaninghub.services.interfc.MapBoxService;
 import com.fpu.exe.cleaninghub.services.interfc.RatingService;
 import groovy.util.logging.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -36,34 +35,23 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class BookingServiceImpl implements BookingService {
     private static final Logger log = LoggerFactory.getLogger(BookingServiceImpl.class);
-    @Autowired
     private TokenRepository tokenRepository;
-    @Autowired
     private JWTService jwtService;
-    @Autowired
-    private ServiceRepository serviceRepository;
-    @Autowired
-    private DurationRepository durationRepository;
-    @Autowired
-    private VoucherRepository voucherRepository;
-    @Autowired
-    private BookingRepository bookingRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PaymentRepository paymentRepository;
-    @Autowired
-    private BookingDetailRepository bookingDetailRepository;
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private RatingService ratingService;
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
-    @Autowired
-    private MapBoxService mapBoxService;
+
+    private final ServiceRepository serviceRepository;
+    private final DurationRepository durationRepository;
+    private final VoucherRepository voucherRepository;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final PaymentRepository paymentRepository;
+    private final BookingDetailRepository bookingDetailRepository;
+    private final ModelMapper modelMapper;
+    private final RatingService ratingService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final MapBoxService mapBoxService;
 
     @Override
     public Page<BookingResponseDto> searchBookings(HttpServletRequest request, String searchTerm, int pageIndex, int pageSize) {
@@ -277,7 +265,7 @@ public class BookingServiceImpl implements BookingService {
             coordinates.append(staff.getLongitude()).append(",").append(staff.getLatitude()).append(";");
         });
 
-        if (coordinates.length() > 0) {
+        if (!coordinates.isEmpty()) {
             coordinates.setLength(coordinates.length() - 1);
         }
 
@@ -289,7 +277,7 @@ public class BookingServiceImpl implements BookingService {
         List<User> staffs = staffAvailable
                 .stream()
                 .limit(numberOfWorker)
-                .map(StaffDistanceInfo::getStaff)// Giới hạn theo numberOfWorker
+                .map(StaffDistanceInfo::getStaff)
                 .collect(Collectors.toList());
         return staffs;
     }
@@ -347,7 +335,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         dto.setServiceName(booking.getService() != null ? booking.getService().getName() : null);
-        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(staff ->  staff.getFullName()).toList() : null);
+        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(User::getFullName).toList() : null);
         dto.setAddress(booking.getAddress());
         dto.setStartDate(booking.getStartDate());
         dto.setEndDate(booking.getEndDate());
@@ -379,7 +367,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setBookingDate(booking.getCreatedDate());
         dto.setAddress(booking.getAddress());
         dto.setServiceName(booking.getService().getName());
-        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(staff ->  staff.getFullName()).toList() : null);
+        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(User::getFullName).toList() : null);
         return dto;
     }
     private ListBookingResponseDTO convertToListBookingResponseDTO(ListBookingResponseDTO booking) {
