@@ -37,9 +37,9 @@ public class PayOSController {
     public RedirectView successOrCancel(@RequestParam Integer bookingId, @RequestParam String status){
         if (status.equalsIgnoreCase("CANCELLED")){
             bookingService.changePaymentStatusOfBooking(orderCode, bookingId, PaymentStatus.FAILED);
-            return new RedirectView("https://www.facebook.com");
+            return new RedirectView("http://localhost:5173/booking-cancel");
         }
         bookingService.changePaymentStatusOfBooking(orderCode, bookingId, PaymentStatus.SUCCESS);
-        return new RedirectView("https://www.facebook.com");
+        return new RedirectView("http://localhost:5173/booking-success");
     }
 }
