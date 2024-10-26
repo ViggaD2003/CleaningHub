@@ -1,10 +1,7 @@
 package com.fpu.exe.cleaninghub.services.interfc;
 
 import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
-import com.fpu.exe.cleaninghub.dto.response.CreateBookingResponseDTO;
-import com.fpu.exe.cleaninghub.dto.response.BookingDetailResponseDto;
-import com.fpu.exe.cleaninghub.dto.response.BookingResponseDto;
-import com.fpu.exe.cleaninghub.dto.response.ListBookingResponseDTO;
+import com.fpu.exe.cleaninghub.dto.response.*;
 import com.fpu.exe.cleaninghub.entity.User;
 import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
@@ -23,4 +20,5 @@ public interface BookingService {
 //    List<User> findAvailableStaff(List<User> availableStaffs, Integer numberOfWorker);
     void changePaymentStatusOfBooking(Long orderCode, Integer bookingId, PaymentStatus paymentStatus);
     List<User> findAvailableStaff(Double logU, Double latU,List<User> availableStaffs, Integer numberOfWorker) throws Exception;
+    BookingDetailStaffResponse getBookingDetailStaff(int bookingId);
 }
