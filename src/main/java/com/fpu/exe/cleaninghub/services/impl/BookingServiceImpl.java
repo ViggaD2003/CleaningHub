@@ -364,15 +364,15 @@ public class BookingServiceImpl implements BookingService {
         return dto;
     }
 
-    public ListBookingResponseDTO getBookingDetailStaff(int bookingId){
+    public BookingDetailStaffResponse getBookingDetailStaff(int bookingId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Booking booking = bookingRepository.findBookingDetailByStaffId(bookingId, user.getId()).orElseThrow(() -> new RuntimeException("User not found"));
-        ListBookingResponseDTO responseDTO = modelMapper.map(booking, ListBookingResponseDTO.class);
-        responseDTO.setCurrentStaff(user);
-        return responseDTO;
+        BookingDetailStaffResponse response = modelMapper.map(booking, BookingDetailStaffResponse.class);
+        response.setBookingDetailResponseDto(modelMapper.map(booking.getBookingDetail(), BookingDetailResponseDto.class));
+        return response;
     }
 }

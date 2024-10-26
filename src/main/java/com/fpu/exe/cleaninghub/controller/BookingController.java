@@ -118,7 +118,7 @@ public class BookingController {
     @PreAuthorize("hasRole('ROLE_STAFF')")
     public ResponseEntity<?> getBookingDetailStaff(@PathVariable Integer id){
         try{
-            ListBookingResponseDTO bookingResponseDTO = bookingService.getBookingDetailStaff(id);
+            BookingDetailStaffResponse bookingResponseDTO = bookingService.getBookingDetailStaff(id);
             return ResponseEntity.ok(API.Response.success(bookingResponseDTO));
         }catch (Exception e){
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "ss", e.getMessage()));
