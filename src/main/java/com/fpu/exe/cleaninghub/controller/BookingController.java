@@ -52,6 +52,16 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
+    @GetMapping("/get-all")
+    public ResponseEntity<?> getAllBookings(@RequestParam(value = "pageIndex", defaultValue = "0") int pageIndex,
+                                            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize){
+        try {
+            Page<ListBookingResponseDTO> bookingsPage = bookingService.getAllBookings(pageIndex, pageSize);
+            return ResponseEntity.ok(bookingsPage);
+        }catch (Exception e) {
+            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
+        }
+    }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_USER')")

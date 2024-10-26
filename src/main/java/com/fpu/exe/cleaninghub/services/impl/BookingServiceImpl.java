@@ -32,7 +32,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -296,6 +295,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public Page<ListBookingResponseDTO> getAllBookings(int pageIndex, int pageSize) {
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        Page<ListBookingResponseDTO> bookingPage = bookingRepository.getBookingForAdminPage(pageable);
+        return bookingPage.map(booking -> convertToListBookingResponseDTO(booking));
+    }
+
+    @Override
     public void changePaymentStatusOfBooking(Long orderCode, Integer bookingId, PaymentStatus paymentStatus) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
         Payments payments = booking.getBookingDetail().getPayment();
@@ -376,4 +382,19 @@ public class BookingServiceImpl implements BookingService {
         dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(staff ->  staff.getFullName()).toList() : null);
         return dto;
     }
+    private ListBookingResponseDTO convertToListBookingResponseDTO(ListBookingResponseDTO booking) {
+        return ListBookingResponseDTO.builder()
+                .id(booking.getId())
+                .status(booking.getStatus())
+                .address(booking.getAddress())
+                .user(booking.getUser())
+                .currentStaff(booking.getUser())
+                .service(booking.getService())
+                .duration(booking.getDuration())
+                .rating(booking.getRating())
+                .startDate(booking.getStartDate())
+                .endDate(booking.getEndDate())
+                .build();
+    }
+
 }

@@ -67,7 +67,7 @@ public class User implements UserDetails {
     private String img;
 
     @Column(name = "average_rating")
-    private Double averageRating = 0.0;
+    private Double averageRating = (Double) 0.0;
 
 
     @Column(name = "create_date", nullable = false, updatable = false)

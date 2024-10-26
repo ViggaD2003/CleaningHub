@@ -23,4 +23,5 @@ public interface BookingService {
 //    List<User> findAvailableStaff(List<User> availableStaffs, Integer numberOfWorker);
     void changePaymentStatusOfBooking(Long orderCode, Integer bookingId, PaymentStatus paymentStatus);
     List<User> findAvailableStaff(Double logU, Double latU,List<User> availableStaffs, Integer numberOfWorker) throws Exception;
+    Page<ListBookingResponseDTO> getAllBookings(int pageIndex, int pageSize);
 }
