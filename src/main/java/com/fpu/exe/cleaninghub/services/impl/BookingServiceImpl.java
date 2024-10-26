@@ -365,8 +365,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     public BookingDetailStaffResponse getBookingDetailStaff(int bookingId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -376,9 +375,9 @@ public class BookingServiceImpl implements BookingService {
         BookingDetailStaffResponse response = modelMapper.map(booking, BookingDetailStaffResponse.class);
         response.setBookingDetailResponseDto(modelMapper.map(booking.getBookingDetail(), BookingDetailResponseDto.class));
 
-        // Select a specific staff member based on a condition (e.g., role or ID)
-        Optional<User> selectedStaff = booking.getStaff().stream()
-                .filter(staff -> staff.getRole().getName().equals("ROLE_STAFF")) // Change condition as needed
+        Optional<UserResponseDTO> selectedStaff = booking.getStaff()
+                .stream()
+                .map(m -> modelMapper.map(m, UserResponseDTO.class))
                 .findFirst();
 
         if (selectedStaff.isPresent()) {

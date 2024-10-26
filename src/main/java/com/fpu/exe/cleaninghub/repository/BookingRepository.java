@@ -39,7 +39,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "AND b.status = 'PENDING' ")
     List<Booking> findByStaffIdWithStatusPending(Integer staffId);
     @Query("SELECT b FROM Booking b " +
-            "JOIN b.staff s " +
+            "JOIN FETCH b.staff s " +
             "WHERE s.id = :staffId " +
             "AND b.id = :bookingId")
     Optional<Booking> findBookingDetailByStaffId(Integer bookingId, Integer staffId);

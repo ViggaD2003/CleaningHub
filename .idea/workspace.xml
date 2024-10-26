@@ -6,9 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="a2831aa7-2bfc-47b8-acaf-1208c0f0dec1" name="Changes" comment="push approperties">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/BookingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/BookingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/WebSocketConfig.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/NotificationsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/NotificationsController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/dto/response/BookingDetailStaffResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/dto/response/BookingDetailStaffResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/repository/BookingRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/repository/BookingRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/impl/BookingServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/impl/BookingServiceImpl.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -43,7 +44,9 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    "Application.CleaninghubApplication.executor": "Debug",
+    "Application.CleaninghubApplication.executor": "Run",
+    "Maven.cleaninghub [clean].executor": "Run",
+    "Maven.cleaninghub [install].executor": "Run",
     "RequestMappingsPanelOrder0": "0",
     "RequestMappingsPanelOrder1": "1",
     "RequestMappingsPanelWidth0": "75",
@@ -152,6 +155,16 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="push approperties" />
     <option name="LAST_COMMIT_MESSAGE" value="push approperties" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="org.hibernate.LazyInitializationException" package="org.hibernate" />
+          <option name="timeStamp" value="10" />
+        </breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
