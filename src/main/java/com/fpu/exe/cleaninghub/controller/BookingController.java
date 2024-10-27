@@ -33,7 +33,7 @@ public class BookingController {
     @Autowired
     private MapBoxService mapBoxService;
 
-    private WebClient webClient;
+    private final WebClient webClient;
     public BookingController(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
     }

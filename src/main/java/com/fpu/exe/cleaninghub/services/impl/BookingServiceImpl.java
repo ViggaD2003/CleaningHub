@@ -317,7 +317,7 @@ public class BookingServiceImpl implements BookingService {
 
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher, Integer numberOfWorker) {
         Double basePrice = service.getBasePrice();
-        double finalPrice = (double) 0;
+        double finalPrice = 0;
         finalPrice += basePrice + ((duration.getPrice() * duration.getDurationInHours()) * numberOfWorker);
         if(voucher != null){
             finalPrice = finalPrice * voucher.getPercentage() / 100;

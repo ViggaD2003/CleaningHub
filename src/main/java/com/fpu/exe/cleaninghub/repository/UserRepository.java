@@ -41,5 +41,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
             "AND u.status = true")
     Page<User> searchUsers(String searchTerm, Pageable pageable);
-
+    @Query("SELECT u FROM User u WHERE u.role.name != 'ROLE_ADMIN' AND u.status = true " +
+            "AND (LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
+    Page<User> findAllNonAdminUsers(String searchTerm, Pageable pageable);
 }
