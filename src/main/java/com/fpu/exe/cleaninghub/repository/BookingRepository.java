@@ -1,5 +1,6 @@
 package com.fpu.exe.cleaninghub.repository;
 
+import com.fpu.exe.cleaninghub.dto.response.ListBookingResponseDTO;
 import com.fpu.exe.cleaninghub.entity.Booking;
 import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,9 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "b.service.name LIKE %:searchTerm%)")
     Page<Booking> findByUserId(Integer userId, @Param("searchTerm") String searchTerm, Pageable pageable);
 
+    @Query("SELECT b from Booking b ORDER BY b.createdDate desc ")
+    Page<ListBookingResponseDTO> getBookingForAdminPage(Pageable pageable);
+
 
 
     Optional<Booking> findByIdAndUserId(Integer bookingId, Integer userId);
@@ -38,8 +42,21 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             "WHERE s.id = :staffId " +
             "AND b.status = 'PENDING' ")
     List<Booking> findByStaffIdWithStatusPending(Integer staffId);
+
+    // Count total bookings
+    @Query("SELECT COUNT(b) FROM Booking b")
+    Long countTotalBookings();
+
+    // Calculate total revenue
+    @Query("SELECT SUM(p.finalPrice) FROM BookingDetail bd JOIN bd.payment p")
+    Double calculateTotalRevenue();
+
+    // Calculate average rating
+    @Query("SELECT AVG(b.rating.stars) FROM Booking b")
+    Double calculateAverageRating();
+
     @Query("SELECT b FROM Booking b " +
-            "JOIN b.staff s " +
+            "JOIN FETCH b.staff s " +
             "WHERE s.id = :staffId " +
             "AND b.id = :bookingId")
     Optional<Booking> findBookingDetailByStaffId(Integer bookingId, Integer staffId);

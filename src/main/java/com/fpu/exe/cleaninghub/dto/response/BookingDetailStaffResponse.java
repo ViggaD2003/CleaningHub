@@ -3,10 +3,13 @@ package com.fpu.exe.cleaninghub.dto.response;
 import com.fpu.exe.cleaninghub.entity.*;
 import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 public class BookingDetailStaffResponse {
     private Integer id;
 
@@ -19,12 +22,12 @@ public class BookingDetailStaffResponse {
 
     private BookingDetailResponseDto bookingDetailResponseDto;
 
-    private Service service;
+    private ServiceDetailResponseDTO service;
 
 
-    private Duration duration;
+    private DurationResponseDTO duration;
 
-    private Rating rating;
+    private RatingDTO rating;
 
     private LocalDateTime startDate;
 
