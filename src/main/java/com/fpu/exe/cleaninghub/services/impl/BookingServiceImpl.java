@@ -133,6 +133,9 @@ public class BookingServiceImpl implements BookingService {
             voucherSelected = voucherRepository
                     .findById(createBookingRequestDTO.getVoucherId())
                     .orElseThrow(() -> new RuntimeException("Voucher not found"));
+            voucherSelected.setAmount(voucherSelected.getAmount() - 1);
+
+            voucherRepository.save(voucherSelected);
         }
 
         // Calculate the final price based on service, duration, and voucher
@@ -360,6 +363,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setBookingDate(booking.getCreatedDate());
         dto.setAddress(booking.getAddress());
         dto.setServiceName(booking.getService().getName());
+        dto.setPrice(booking.getBookingDetail().getPayment().getFinalPrice());
         dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(User::getFullName).toList() : null);
         return dto;
     }

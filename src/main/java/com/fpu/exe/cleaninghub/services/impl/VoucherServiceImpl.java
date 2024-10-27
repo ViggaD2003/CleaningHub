@@ -1,6 +1,7 @@
 package com.fpu.exe.cleaninghub.services.impl;
 
 import com.fpu.exe.cleaninghub.dto.request.VoucherRequest;
+import com.fpu.exe.cleaninghub.dto.response.VoucherResponseDto;
 import com.fpu.exe.cleaninghub.entity.Voucher;
 import com.fpu.exe.cleaninghub.repository.CategoryRepository;
 import com.fpu.exe.cleaninghub.repository.VoucherRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class VoucherServiceImpl implements VoucherService {
@@ -24,5 +26,13 @@ public class VoucherServiceImpl implements VoucherService {
 
         }
         voucherRepository.save(modelMapper.map(createVoucherRequest, Voucher.class));
+    }
+
+    @Override
+    public List<VoucherResponseDto> getAllVouchers() {
+        List<Voucher> list = voucherRepository.findAllByQuantityMoreThanZero();
+        List<VoucherResponseDto> listDto = list.stream().map(item -> modelMapper.map(item, VoucherResponseDto.class)).toList();
+
+        return listDto;
     }
 }
