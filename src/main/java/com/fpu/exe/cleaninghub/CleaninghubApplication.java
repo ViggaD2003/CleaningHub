@@ -1,21 +1,22 @@
 package com.fpu.exe.cleaninghub;
 
-import com.fpu.exe.cleaninghub.entity.Role;
-import com.fpu.exe.cleaninghub.entity.User;
-import com.fpu.exe.cleaninghub.repository.RoleRepository;
-import com.fpu.exe.cleaninghub.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fpu.exe.cleaninghub.entity.Role;
+import com.fpu.exe.cleaninghub.entity.User;
+import com.fpu.exe.cleaninghub.repository.RoleRepository;
+import com.fpu.exe.cleaninghub.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @SpringBootApplication
 @EnableScheduling
