@@ -118,11 +118,20 @@ public class BookingController {
     public ResponseEntity<?> ChangeBookingStatus(HttpServletRequest request, @PathVariable BookingStatus bookingStatus, @PathVariable Integer id) {
         try {
             bookingService.ChangeBookingStatus(bookingStatus, id, request);
-            return ResponseEntity.ok(API.Response.success("Chang status successfully"));
+            return ResponseEntity.ok(API.Response.success("Changed success"));
         } catch (Exception e) {
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong!!", e.getMessage()));
         }
     }
+
+    @GetMapping("/staff/{id}")
+    @PreAuthorize("hasRole('ROLE_STAFF')")
+    public ResponseEntity<?> getBookingDetailStaff(@PathVariable Integer id){
+        try{
+            BookingDetailStaffResponse bookingResponseDTO = bookingService.getBookingDetailStaff(id);
+            return ResponseEntity.ok(API.Response.success(bookingResponseDTO));
+        }catch (Exception e){
+            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "ss", e.getMessage()));
+        }
     }
-
-
+}

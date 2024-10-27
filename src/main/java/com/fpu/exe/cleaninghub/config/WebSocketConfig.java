@@ -2,6 +2,7 @@ package com.fpu.exe.cleaninghub.config;
 
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
 import com.fpu.exe.cleaninghub.services.interfc.UserService;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Autowired
     private UserService userService;
 
+    @PostConstruct
+    public void init() {
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    }
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry){
         registry.enableSimpleBroker("/topic", "/queue");
@@ -49,23 +54,31 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-                log.info("Headers: {}", accessor);
 
-                assert accessor != null;
-                if(StompCommand.CONNECT.equals(accessor.getCommand())){
+                if (accessor != null) {
+                    // Log only specific headers and avoid the entire accessor to prevent lazy loading issues
+                    log.info("STOMP Command: {}", accessor.getCommand());
+                    String authHeader = accessor.getFirstNativeHeader("Authorization");
+                    log.info("Authorization Header Present: {}", authHeader != null);
 
-                    String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
-                    assert authorizationHeader != null;
-                    String token = authorizationHeader.substring(7);
+                    if (StompCommand.CONNECT.equals(accessor.getCommand()) && authHeader != null) {
+                        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+                        try {
+                            String username = jwtService.extractUsername(token);
+                            UserDetails userDetails = userService.userDetailsService().loadUserByUsername(username);
 
-                    String username = jwtService.extractUsername(token);
-                    UserDetails userDetails = userService.userDetailsService().loadUserByUsername(username);
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                            UsernamePasswordAuthenticationToken authToken =
+                                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-                    accessor.setUser(usernamePasswordAuthenticationToken);
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
+                            accessor.setUser(authToken);
+                            log.info("User authenticated for WebSocket: {}", username);
+                        } catch (Exception e) {
+                            log.error("WebSocket authentication failed", e);
+                            return null; // Reject connection if authentication fails
+                        }
+                    }
                 }
-
                 return message;
             }
         });

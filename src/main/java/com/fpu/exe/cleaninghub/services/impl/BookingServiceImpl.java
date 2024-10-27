@@ -370,6 +370,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(User::getFullName).toList() : null);
         return dto;
     }
+
     private ListBookingResponseDTO convertToListBookingResponseDTO(ListBookingResponseDTO booking) {
         return ListBookingResponseDTO.builder()
                 .id(booking.getId())
@@ -383,6 +384,32 @@ public class BookingServiceImpl implements BookingService {
                 .startDate(booking.getStartDate())
                 .endDate(booking.getEndDate())
                 .build();
+    }
+
+
+    public BookingDetailStaffResponse getBookingDetailStaff(int bookingId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Booking booking = bookingRepository.findBookingDetailByStaffId(bookingId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        BookingDetailStaffResponse response = modelMapper.map(booking, BookingDetailStaffResponse.class);
+        response.setBookingDetailResponseDto(modelMapper.map(booking.getBookingDetail(), BookingDetailResponseDto.class));
+
+        Optional<UserResponseDTO> selectedStaff = booking.getStaff()
+                .stream()
+                .map(m -> modelMapper.map(m, UserResponseDTO.class))
+                .findFirst();
+
+        if (selectedStaff.isPresent()) {
+            response.setStaff(modelMapper.map(selectedStaff.get(), UserResponseDTO.class));
+        } else {
+            throw new RuntimeException("No matching staff found for this booking");
+        }
+
+        return response;
     }
 
 }

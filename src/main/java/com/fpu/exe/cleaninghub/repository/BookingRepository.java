@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.List;
 @Repository
@@ -54,4 +55,9 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     @Query("SELECT AVG(b.rating.stars) FROM Booking b")
     Double calculateAverageRating();
 
+    @Query("SELECT b FROM Booking b " +
+            "JOIN FETCH b.staff s " +
+            "WHERE s.id = :staffId " +
+            "AND b.id = :bookingId")
+    Optional<Booking> findBookingDetailByStaffId(Integer bookingId, Integer staffId);
 }
