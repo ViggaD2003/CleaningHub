@@ -283,6 +283,13 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    public Page<ListBookingResponseDTO> getAllBookings(int pageIndex, int pageSize) {
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        Page<ListBookingResponseDTO> bookingPage = bookingRepository.getBookingForAdminPage(pageable);
+        return bookingPage.map(booking -> convertToListBookingResponseDTO(booking));
+    }
+
+    @Override
     public void changePaymentStatusOfBooking(Long orderCode, Integer bookingId, PaymentStatus paymentStatus) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
         Payments payments = booking.getBookingDetail().getPayment();
@@ -310,7 +317,7 @@ public class BookingServiceImpl implements BookingService {
 
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher, Integer numberOfWorker) {
         Double basePrice = service.getBasePrice();
-        double finalPrice = (double) 0;
+        double finalPrice = 0;
         finalPrice += basePrice + ((duration.getPrice() * duration.getDurationInHours()) * numberOfWorker);
         if(voucher != null){
             finalPrice = finalPrice * voucher.getPercentage() / 100;
@@ -364,6 +371,22 @@ public class BookingServiceImpl implements BookingService {
         return dto;
     }
 
+    private ListBookingResponseDTO convertToListBookingResponseDTO(ListBookingResponseDTO booking) {
+        return ListBookingResponseDTO.builder()
+                .id(booking.getId())
+                .status(booking.getStatus())
+                .address(booking.getAddress())
+                .user(booking.getUser())
+                .currentStaff(booking.getUser())
+                .service(booking.getService())
+                .duration(booking.getDuration())
+                .rating(booking.getRating())
+                .startDate(booking.getStartDate())
+                .endDate(booking.getEndDate())
+                .build();
+    }
+
+
     public BookingDetailStaffResponse getBookingDetailStaff(int bookingId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -388,4 +411,5 @@ public class BookingServiceImpl implements BookingService {
 
         return response;
     }
+
 }

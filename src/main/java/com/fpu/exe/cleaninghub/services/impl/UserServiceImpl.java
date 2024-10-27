@@ -1,19 +1,29 @@
 package com.fpu.exe.cleaninghub.services.impl;
 
+import com.fpu.exe.cleaninghub.dto.request.AccountRequest;
 import com.fpu.exe.cleaninghub.dto.request.LocationRequest;
+import com.fpu.exe.cleaninghub.dto.response.AccountResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.UserResponseDTO;
+import com.fpu.exe.cleaninghub.entity.Role;
 import com.fpu.exe.cleaninghub.entity.User;
+import com.fpu.exe.cleaninghub.repository.RoleRepository;
 import com.fpu.exe.cleaninghub.repository.TokenRepository;
 import com.fpu.exe.cleaninghub.repository.UserRepository;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
 import com.fpu.exe.cleaninghub.services.interfc.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -21,9 +31,13 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private TokenRepository tokenRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     private final JWTService jwtService;
 
@@ -81,6 +95,54 @@ public class UserServiceImpl implements UserService {
         } else {
             return "something went wrong !";
         }
+    }
+
+    @Override
+    public Page<UserResponseDTO> getAllUsers(String searchTerm, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> users = userRepository.searchUsers(searchTerm, pageable);
+        return users.map(this::mapToDto);
+    }
+
+    @Override
+    public User updateUserRoleAndStatus(Integer userId, Integer roleId, Boolean status) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("User not found with id: " + userId);
+        }
+
+        User user = userOptional.get();
+        Optional<Role> roleOptional = roleRepository.findById(roleId);
+        if (roleOptional.isEmpty()) {
+            throw new RuntimeException("Role not found with id: " + roleId);
+        }
+        Role role = roleOptional.get();
+        user.setRole(role);
+        user.setStatus(status);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public boolean updateRole(AccountRequest request) {
+        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Role role = roleRepository.findById(request.getRoleId()).orElseThrow(() -> new IllegalArgumentException("Role not found"));
+        user.setRole(role);
+        userRepository.save(user);
+        return true;
+    }
+
+    @Override
+    public void deleteAccount(Integer userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        user.setStatus(false);
+        userRepository.save(user);
+    }
+
+    @Override
+    public Page<AccountResponseDto> getAllNonAdminAccounts(String searchTerm, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> users = userRepository.findAllNonAdminUsers(searchTerm, pageable);
+        return users.map(user -> modelMapper.map(user, AccountResponseDto.class));
     }
 
     private UserResponseDTO mapToDto(User user){

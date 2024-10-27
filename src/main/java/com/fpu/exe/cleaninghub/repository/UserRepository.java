@@ -2,6 +2,8 @@ package com.fpu.exe.cleaninghub.repository;
 
 import com.fpu.exe.cleaninghub.entity.Role;
 import com.fpu.exe.cleaninghub.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,19 +17,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     User findByRole(Role role);
     @Query(value = "SELECT u FROM User u ORDER BY u.averageRating DESC LIMIT 1")
     User findStaffByHighestAverageRating();
+
     @Query("SELECT c FROM User c WHERE c.role.id = 3")
     List<User> findAllStaff();
-//    @Query("SELECT u\n" +
-//            "FROM User u \n" +
-//            "LEFT JOIN Booking b ON b.staff.id = u.id\n" +
-//            "AND b.status != 'COMPLETED'\n" +
-//            "AND b.startDate < :endTime\n" +
-//            "AND b.endDate > :startTime\n" +
-//            "WHERE u.role.id = 3\n" +
-//            "AND b.id IS NULL\n" +
-//            "AND u.accountLocked = true\n")
-//    List<User> findStaffByBookingTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
-
 
     @Query("SELECT u " +
             "FROM User u " +
@@ -40,7 +32,18 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "AND u.accountLocked = true")
     List<User> findStaffByBookingTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
-
     @Query("SELECT u FROM User u WHERE u.role.id = 3 ORDER BY u.averageRating DESC LIMIT 5")
     List<User> getFiveUserHaveHighestAverageRating();
+
+    @Query("SELECT u FROM User u WHERE " +
+            "(LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(u.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+            "LOWER(u.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))) " +
+            "AND u.status = true")
+    Page<User> searchUsers(String searchTerm, Pageable pageable);
+    @Query("SELECT u FROM User u WHERE u.role.name != 'ROLE_ADMIN' AND u.status = true " +
+            "AND (LOWER(u.email) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) " +
+            "OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
+    Page<User> findAllNonAdminUsers(String searchTerm, Pageable pageable);
 }
