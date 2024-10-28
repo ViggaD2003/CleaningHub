@@ -4,6 +4,8 @@ import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.util.List;
 import java.time.LocalDateTime;
 
@@ -15,6 +17,8 @@ public class CreateBookingResponseDTO {
     private BookingStatus status;
     private BookingDetailResponseDto bookingDetail;
     private String address;
+    private Double latitude;
+    private Double longitude;
     private UserResponseDTO user;
     private List<UserResponseDTO> staff;
     private ServiceDetailResponseDTO service;

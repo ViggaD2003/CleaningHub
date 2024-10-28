@@ -214,7 +214,7 @@ build/
 !**/src/test/**/build/
 
 ### OWN ###
-src/main/resources/*.properties
+#src/main/resources/*.properties
 src/main/resources/*.json
 **/src/test/
 nbactions.xml

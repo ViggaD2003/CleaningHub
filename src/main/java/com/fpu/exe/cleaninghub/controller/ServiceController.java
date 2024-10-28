@@ -2,6 +2,7 @@ package com.fpu.exe.cleaninghub.controller;
 
 import com.fpu.exe.cleaninghub.dto.request.CreateServiceRequestDto;
 import com.fpu.exe.cleaninghub.dto.request.UpdateServiceRequestDto;
+import com.fpu.exe.cleaninghub.dto.response.CategoryServiceDistributionResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.CreateServiceResponseDto;
 import com.fpu.exe.cleaninghub.dto.response.ServiceResponseDto;
 import com.fpu.exe.cleaninghub.services.interfc.ServiceService;
@@ -11,7 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/services")
@@ -29,6 +33,7 @@ public class ServiceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createService(@Valid @RequestBody CreateServiceRequestDto serviceRequestDto) {
         try {
             CreateServiceResponseDto response = serviceService.createService(serviceRequestDto);
@@ -39,6 +44,7 @@ public class ServiceController {
     }
 
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateService(@PathVariable Integer id,
                                            @Valid @RequestBody UpdateServiceRequestDto updateServiceRequestDto) {
         try {
@@ -59,6 +65,7 @@ public class ServiceController {
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteService(@PathVariable Integer id) {
         try {
             serviceService.deleteService(id);
@@ -66,6 +73,10 @@ public class ServiceController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong!!", e.getMessage()));
         }
+    }
+    @GetMapping("/category-distribution")
+    public List<CategoryServiceDistributionResponseDto> getCategoryDistribution() {
+        return serviceService.getCategoryServiceDistribution();
     }
 }
 

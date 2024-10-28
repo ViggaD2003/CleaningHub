@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import vn.payos.type.CheckoutResponseData;
@@ -22,6 +23,7 @@ public class PayOSController {
     private final BookingService bookingService;
     private Long orderCode;
     @PostMapping()
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<?> checkOut(HttpServletRequest request, @RequestBody CreateBookingRequestDTO dto) {
         try {
             CheckoutResponseData data = payOsService.createCheckoutUrl(request, dto);
@@ -35,9 +37,9 @@ public class PayOSController {
     public RedirectView successOrCancel(@RequestParam Integer bookingId, @RequestParam String status){
         if (status.equalsIgnoreCase("CANCELLED")){
             bookingService.changePaymentStatusOfBooking(orderCode, bookingId, PaymentStatus.FAILED);
-            return new RedirectView("https://www.facebook.com");
+            return new RedirectView("http://localhost:5173/booking-cancel");
         }
         bookingService.changePaymentStatusOfBooking(orderCode, bookingId, PaymentStatus.SUCCESS);
-        return new RedirectView("https://www.facebook.com");
+        return new RedirectView("http://localhost:5173/booking-success");
     }
 }

@@ -108,15 +108,11 @@
             return ResponseEntity.ok("update successfully");
         }
 
-
         @PatchMapping("/change-password")
         public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, Principal connectedUser){
             authenticationService.changePassword(request, connectedUser);
             return ResponseEntity.ok("change successfully");
         }
-
-
-
 
         @PatchMapping("/change-forgot-password")
         public ResponseEntity<?> changeForgotPassword(@RequestBody ChangeForgotPasswordRequest request, String email) throws MessagingException {

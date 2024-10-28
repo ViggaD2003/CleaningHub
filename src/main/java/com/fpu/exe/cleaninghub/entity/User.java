@@ -57,6 +57,12 @@ public class User implements UserDetails {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
     @Column(name = "img")
     private String img;
 
@@ -71,17 +77,6 @@ public class User implements UserDetails {
     @Column(name = "update_date", insertable = false)
     @LastModifiedDate
     private LocalDate updateDate;
-
-//    @Column(name = "create_by", nullable = false, updatable = false)
-//    @CreatedBy
-//    @JsonIgnore
-//    private Integer createBy;
-//
-//    @Column(name = "update_by", insertable = false)
-//    @LastModifiedBy
-//    @JsonIgnore
-//    private Integer updateBy;
-
 
     @ManyToOne
     @JsonManagedReference
@@ -120,15 +115,6 @@ public class User implements UserDetails {
     @ManyToMany(mappedBy = "staff")
     @JsonIgnore
     private List<Booking> assignOfStaffs;
-
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "staff", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-//    private List<Rating> ratingOfStaff;
-//
-//    @JsonIgnore
-//    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, fetch = FetchType.LAZY)
-//    private List<Rating> ratingsOfUser;
-
 
     private String verificationCode;
 

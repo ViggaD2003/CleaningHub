@@ -9,63 +9,49 @@ import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
 import com.fpu.exe.cleaninghub.repository.*;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
+import com.fpu.exe.cleaninghub.services.interfc.MapBoxService;
 import com.fpu.exe.cleaninghub.services.interfc.RatingService;
 import groovy.util.logging.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class BookingServiceImpl implements BookingService {
     private static final Logger log = LoggerFactory.getLogger(BookingServiceImpl.class);
-    @Autowired
     private TokenRepository tokenRepository;
-    @Autowired
     private JWTService jwtService;
-    @Autowired
-    private ServiceRepository serviceRepository;
-    @Autowired
-    private DurationRepository durationRepository;
-    @Autowired
-    private VoucherRepository voucherRepository;
-    @Autowired
-    private BookingRepository bookingRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PaymentRepository paymentRepository;
-    @Autowired
-    private BookingDetailRepository bookingDetailRepository;
-    @Autowired
-    private ModelMapper modelMapper;
 
-    @Autowired
-    private RatingService ratingService;
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private final ServiceRepository serviceRepository;
+    private final DurationRepository durationRepository;
+    private final VoucherRepository voucherRepository;
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final PaymentRepository paymentRepository;
+    private final BookingDetailRepository bookingDetailRepository;
+    private final ModelMapper modelMapper;
+    private final RatingService ratingService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final MapBoxService mapBoxService;
 
     @Override
     public Page<BookingResponseDto> searchBookings(HttpServletRequest request, String searchTerm, int pageIndex, int pageSize) {
@@ -104,6 +90,7 @@ public class BookingServiceImpl implements BookingService {
         }
         return user;
     }
+
     private String extractTokenFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
@@ -114,7 +101,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED, rollbackFor = Exception.class)
     @Override
-    public CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO) {
+    public CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO) throws Exception {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -134,8 +121,10 @@ public class BookingServiceImpl implements BookingService {
 
         if(availableStaffs.isEmpty()){
             throw new RuntimeException("The staffs are busy at this time. Please choose another time");
+        } else if (availableStaffs.size() < createBookingRequestDTO.getNumberOfWorker()) {
+            throw new RuntimeException("The staffs are busy at this time");
         }
-        List<User> listStaff = findAvailableStaff(availableStaffs, createBookingRequestDTO.getNumberOfWorker());
+        List<User> listStaff = findAvailableStaff(createBookingRequestDTO.getLongitude(), createBookingRequestDTO.getLatitude(), availableStaffs, createBookingRequestDTO.getNumberOfWorker());
 
 
         // Handle voucher if provided
@@ -144,6 +133,9 @@ public class BookingServiceImpl implements BookingService {
             voucherSelected = voucherRepository
                     .findById(createBookingRequestDTO.getVoucherId())
                     .orElseThrow(() -> new RuntimeException("Voucher not found"));
+            voucherSelected.setAmount(voucherSelected.getAmount() - 1);
+
+            voucherRepository.save(voucherSelected);
         }
 
         // Calculate the final price based on service, duration, and voucher
@@ -179,6 +171,8 @@ public class BookingServiceImpl implements BookingService {
                 .service(service)
                 .staff(listStaff)
                 .user(user)
+                .latitude(createBookingRequestDTO.getLatitude())
+                .longitude(createBookingRequestDTO.getLongitude())
                 .duration(durationSelected)
                 .address(createBookingRequestDTO.getAddress())
                 .status(BookingStatus.PENDING)
@@ -204,6 +198,8 @@ public class BookingServiceImpl implements BookingService {
                 .service(modelMapper.map(service, ServiceDetailResponseDTO.class))
                 .staff(listStaff.stream().map(staff -> modelMapper.map(staff, UserResponseDTO.class)).toList())
                 .user(modelMapper.map(user, UserResponseDTO.class))
+                .latitude(booking.getLatitude())
+                .longitude(booking.getLongitude())
                 .duration(modelMapper.map(durationSelected, DurationResponseDTO.class))
                 .createdDate(booking.getCreatedDate())
                 .updatedDate(booking.getUpdatedDate())
@@ -264,15 +260,36 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<User> findAvailableStaff(List<User> availableStaffs, Integer numberOfWorker) {
-        availableStaffs.sort(Comparator.comparing(User::getAverageRating)
-                .thenComparing(staff -> ratingService.numberOfRatings(staff.getId()))
-                .reversed());
+    public List<User> findAvailableStaff(Double logU, Double latU,List<User> availableStaffs, Integer numberOfWorker) throws Exception {
+        StringBuilder coordinates = new StringBuilder();
+        coordinates.append(logU).append(",").append(latU).append(";");
 
-        List<User> staffs = availableStaffs.stream()
-                .limit(numberOfWorker)  // Giới hạn theo numberOfWorker
+        availableStaffs.forEach(staff -> {
+            coordinates.append(staff.getLongitude()).append(",").append(staff.getLatitude()).append(";");
+        });
+
+        if (!coordinates.isEmpty()) {
+            coordinates.setLength(coordinates.length() - 1);
+        }
+
+        List<StaffDistanceInfo> staffAvailable = mapBoxService.calculateDistanceBetweenTwoLocation(coordinates, availableStaffs);
+
+        staffAvailable.sort(Comparator.comparingDouble(StaffDistanceInfo::getDurationInMinutes).reversed()
+                .thenComparingDouble(StaffDistanceInfo::getAverageRating).reversed()
+                .thenComparingDouble(staff -> ratingService.numberOfRatings(staff.getStaff().getId())));
+        List<User> staffs = staffAvailable
+                .stream()
+                .limit(numberOfWorker)
+                .map(StaffDistanceInfo::getStaff)
                 .collect(Collectors.toList());
         return staffs;
+    }
+
+    @Override
+    public Page<ListBookingResponseDTO> getAllBookings(int pageIndex, int pageSize) {
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        Page<ListBookingResponseDTO> bookingPage = bookingRepository.getBookingForAdminPage(pageable);
+        return bookingPage.map(booking -> convertToListBookingResponseDTO(booking));
     }
 
     @Override
@@ -303,10 +320,10 @@ public class BookingServiceImpl implements BookingService {
 
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher, Integer numberOfWorker) {
         Double basePrice = service.getBasePrice();
-        double finalPrice = (double) 0;
-        finalPrice += basePrice + ((duration.getPrice() * duration.getDurationInHours()) * numberOfWorker);
+        double finalPrice = 0;
+        finalPrice += basePrice + (duration.getPrice() * numberOfWorker);
         if(voucher != null){
-            finalPrice = finalPrice * voucher.getPercentage() / 100;
+            finalPrice = finalPrice - (finalPrice * voucher.getPercentage() / 100);
         }
         return BigDecimal.valueOf(finalPrice).setScale(3,RoundingMode.HALF_DOWN);
     }
@@ -321,7 +338,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         dto.setServiceName(booking.getService() != null ? booking.getService().getName() : null);
-        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(staff ->  staff.getFullName()).toList() : null);
+        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(User::getFullName).toList() : null);
         dto.setAddress(booking.getAddress());
         dto.setStartDate(booking.getStartDate());
         dto.setEndDate(booking.getEndDate());
@@ -353,7 +370,50 @@ public class BookingServiceImpl implements BookingService {
         dto.setBookingDate(booking.getCreatedDate());
         dto.setAddress(booking.getAddress());
         dto.setServiceName(booking.getService().getName());
-        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(staff ->  staff.getFullName()).toList() : null);
+        dto.setPrice(booking.getBookingDetail().getPayment().getFinalPrice());
+        dto.setStaffName(booking.getStaff() != null ? booking.getStaff().stream().map(User::getFullName).toList() : null);
         return dto;
     }
+
+    private ListBookingResponseDTO convertToListBookingResponseDTO(ListBookingResponseDTO booking) {
+        return ListBookingResponseDTO.builder()
+                .id(booking.getId())
+                .status(booking.getStatus())
+                .address(booking.getAddress())
+                .user(booking.getUser())
+                .currentStaff(booking.getUser())
+                .service(booking.getService())
+                .duration(booking.getDuration())
+                .rating(booking.getRating())
+                .startDate(booking.getStartDate())
+                .endDate(booking.getEndDate())
+                .build();
+    }
+
+
+    public BookingDetailStaffResponse getBookingDetailStaff(int bookingId) {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Booking booking = bookingRepository.findBookingDetailByStaffId(bookingId, user.getId())
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        BookingDetailStaffResponse response = modelMapper.map(booking, BookingDetailStaffResponse.class);
+        response.setBookingDetailResponseDto(modelMapper.map(booking.getBookingDetail(), BookingDetailResponseDto.class));
+
+        Optional<UserResponseDTO> selectedStaff = booking.getStaff()
+                .stream()
+                .map(m -> modelMapper.map(m, UserResponseDTO.class))
+                .findFirst();
+
+        if (selectedStaff.isPresent()) {
+            response.setStaff(modelMapper.map(selectedStaff.get(), UserResponseDTO.class));
+        } else {
+            throw new RuntimeException("No matching staff found for this booking");
+        }
+
+        return response;
+    }
+
 }
