@@ -28,7 +28,7 @@ jobs:
 
       - name: Running Unit Tests
         run: |
-          cd book-network
+          cd src/main/java/com/fpu/exe/cleaninghub
           mvn clean compile
 
   build:
