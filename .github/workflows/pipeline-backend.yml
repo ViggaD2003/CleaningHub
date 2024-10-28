@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'openjdk'
+          distribution: 'temurin'
 
       - name: Running Unit Tests
         run: |
@@ -66,7 +66,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'openjdk'
+          distribution: 'temurin'
 
       - name: Extract project version
         id: extract_version
