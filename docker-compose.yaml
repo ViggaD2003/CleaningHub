@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   cleaning-hub:
-    image: ${DOCKER_USERNAME}/cleaning-hub:latest
+    image: ${DOCKER_USERNAME}/cleaning-hub:${TAG}
     build:
       context: .
       dockerfile: Dockerfile
