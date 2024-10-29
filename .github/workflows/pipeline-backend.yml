@@ -55,7 +55,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
         
       - name: Clean Maven
-        run: ./mvnw clean
+        run: mvn clean
 
       - name: Login to DockerHub
         uses: docker/login-action@v3
