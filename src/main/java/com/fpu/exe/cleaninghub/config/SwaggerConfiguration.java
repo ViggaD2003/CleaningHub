@@ -27,7 +27,7 @@ public class SwaggerConfiguration {
     @Bean
     public OpenAPI CleaningHubOpenAPI() {
         return new OpenAPI()
-                .addServersItem(new Server().url("https://ch-api.arisavinh.dev"))
+                .addServersItem(new Server().url("/"))
                 .info(new Info().title("CLeaning Hub API")
                         .description("Cleaning hub application")
                         .version("v0.0.1")
