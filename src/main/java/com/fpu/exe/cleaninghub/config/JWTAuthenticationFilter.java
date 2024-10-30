@@ -38,12 +38,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         final String jwtToken;
         final String username;
 
-//        String path = request.getServletPath();
-//        if (path.startsWith("/api/v1/auth/refresh")) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
-
         // Kiểm tra xem header có chứa Bearer token không
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -54,19 +48,16 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         try {
             username = jwtService.extractUsername(jwtToken);
         } catch (Exception e) {
-            // Token không hợp lệ hoặc hết hạn
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 
-        // Kiểm tra tính hợp lệ của username và SecurityContext
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userService.userDetailsService().loadUserByUsername(username);
             var isTokenValid = tokenRepository.findByToken(jwtToken)
                     .map(token -> !token.isExpired() && !token.isRevoked())
                     .orElse(false);
 
-            // Kiểm tra tính hợp lệ của token
             if (jwtService.isTokenValid(jwtToken, userDetails) && isTokenValid) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
@@ -76,7 +67,6 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } else {
-                // Token không hợp lệ hoặc đã bị thu hồi
                 response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
