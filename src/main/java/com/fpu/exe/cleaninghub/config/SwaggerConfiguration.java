@@ -33,8 +33,7 @@ public class SwaggerConfiguration {
                         .version("v0.0.1")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")))
                 .externalDocs(new ExternalDocumentation()
-                        .description("Cleaning Hub Documentation")
-                        .url("https://troll.vn"));
+                        .description("Cleaning Hub Documentation"));
     }
 
     @Bean

@@ -6,11 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="a2831aa7-2bfc-47b8-acaf-1208c0f0dec1" name="Changes" comment="push approperties">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/SecurityConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/SecurityConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/WebSocketConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/WebSocketConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/AuthController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/PayOSController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/PayOSController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/SwaggerConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/SwaggerConfiguration.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +139,7 @@
       <workItem from="1730084943194" duration="612000" />
       <workItem from="1730099116645" duration="955000" />
       <workItem from="1730129511451" duration="1890000" />
-      <workItem from="1730266671423" duration="1011000" />
+      <workItem from="1730266671423" duration="1547000" />
     </task>
     <task id="LOCAL-00001" summary="push approperties">
       <option name="closed" value="true" />
