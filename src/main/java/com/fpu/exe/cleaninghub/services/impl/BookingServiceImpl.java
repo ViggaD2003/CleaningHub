@@ -6,6 +6,7 @@ import com.fpu.exe.cleaninghub.entity.*;
 import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import com.fpu.exe.cleaninghub.enums.Payment.PaymentMethod;
 import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
+import com.fpu.exe.cleaninghub.exception.OperationNotPermittedException;
 import com.fpu.exe.cleaninghub.repository.*;
 import com.fpu.exe.cleaninghub.services.interfc.BookingService;
 import com.fpu.exe.cleaninghub.services.interfc.JWTService;
@@ -180,16 +181,13 @@ public class BookingServiceImpl implements BookingService {
                 .endDate(endTime)
                 .build();
 
-        bookingRepository.save(booking);
-//        try {
-//            simpMessagingTemplate.convertAndSendToUser(staff.getEmail(),"/queue/notifications", booking);
-//            log.info("Websocket notification sent to staff successfully for booking id: {}", staff.getEmail());
-//        } catch (Exception e){
-//            log.error("Failed to send Websocket notification to staff for booking id: {}", booking.getId());
-//            throw new RuntimeException("Failed to send Websocket notification");
-//        }
+        if(listStaff.isEmpty()){
+            log.info("No staff found in this time");
+            throw new OperationNotPermittedException("No staff found in this time");
+        }
 
-        // Create and return the final response
+        bookingRepository.save(booking);
+
         return CreateBookingResponseDTO.builder()
                 .id(booking.getId())
                 .status(booking.getStatus())
