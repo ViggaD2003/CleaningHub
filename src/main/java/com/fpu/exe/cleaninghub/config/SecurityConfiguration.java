@@ -55,7 +55,7 @@ public class SecurityConfiguration {
         http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+                    config.setAllowedOrigins(Collections.singletonList("https://cleaning-hub.vercel.app"));
                     config.setAllowedMethods(Collections.singletonList("*"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(Collections.singletonList("*"));
@@ -82,7 +82,7 @@ public class SecurityConfiguration {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(user -> user.userService(customOAuth2UserService))
                         .defaultSuccessUrl("/api/v1/auth/signInGoogle", true)
-                        .failureUrl("http://localhost:5173/login"));
+                        .failureUrl("https://cleaning-hub.vercel.app/login"));
 
         http.exceptionHandling(exception -> exception
                 .authenticationEntryPoint(beanConfig.authenticationEntryPoint())
