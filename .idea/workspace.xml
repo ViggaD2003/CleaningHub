@@ -7,10 +7,8 @@
     <list default="true" id="a2831aa7-2bfc-47b8-acaf-1208c0f0dec1" name="Changes" comment="push approperties">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/SecurityConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/config/SecurityConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/dto/response/ServiceDetailResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/dto/response/ServiceDetailResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/impl/BookingServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/impl/BookingServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/NotificationsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/NotificationsController.java" afterDir="false" />
     </list>
-    <list default="true" id="a2831aa7-2bfc-47b8-acaf-1208c0f0dec1" name="Changes" comment="push approperties" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,7 +57,7 @@
     &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;Spring Boot.CleaninghubApplication.executor&quot;: &quot;Run&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/Danh/Lessons/ReactiveProject&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -140,6 +138,7 @@
       <workItem from="1730084943194" duration="612000" />
       <workItem from="1730099116645" duration="955000" />
       <workItem from="1730129511451" duration="1890000" />
+      <workItem from="1730362284325" duration="362000" />
     </task>
     <task id="LOCAL-00001" summary="push approperties">
       <option name="closed" value="true" />
