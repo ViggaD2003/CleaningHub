@@ -413,5 +413,10 @@ public class BookingServiceImpl implements BookingService {
 
         return response;
     }
-
+    @Override
+    public void updateStatusBooking(String status, Integer bookingId) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new RuntimeException("not found booking !"));
+        booking.setStatus(status.equals(BookingStatus.IN_PROGRESS) ? BookingStatus.IN_PROGRESS : BookingStatus.COMPLETED);
+        bookingRepository.save(booking);
+    }
 }
