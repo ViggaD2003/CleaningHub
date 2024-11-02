@@ -22,4 +22,5 @@ public interface BookingService {
     List<User> findAvailableStaff(Double logU, Double latU,List<User> availableStaffs, Integer numberOfWorker) throws Exception;
     Page<ListBookingResponseDTO> getAllBookings(int pageIndex, int pageSize);
     BookingDetailStaffResponse getBookingDetailStaff(int bookingId);
+    void updateStatusBooking(String status, Integer bookingId);
 }

@@ -134,4 +134,15 @@ public class BookingController {
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "ss", e.getMessage()));
         }
     }
+
+
+    @PatchMapping("/update-booking-status")
+    public ResponseEntity<?> updateStatusBooking(@RequestParam("status") String status, @RequestParam("bookingId") Integer bookingId) {
+        try{
+            bookingService.updateStatusBooking(status, bookingId);
+            return ResponseEntity.ok(API.Response.success("Updated success"));
+        } catch (Exception e){
+            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something wrong......", e.getMessage()));
+        }
+    }
 }
