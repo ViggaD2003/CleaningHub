@@ -44,6 +44,7 @@ jobs:
             PAYOS_API_KEY: ${{secrets.PAYOS_API_KEY}}
             PAYOS_CHECKSUM_KEY: ${{secrets.PAYOS_CHECKSUM_KEY}}
             DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+            BASE_API_URL: ${{secrets.BASE_API_URL}}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
