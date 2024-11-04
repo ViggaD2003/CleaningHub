@@ -417,7 +417,13 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public void updateStatusBooking(String status, Integer bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new RuntimeException("not found booking !"));
-        booking.setStatus(status.equals(BookingStatus.IN_PROGRESS) ? BookingStatus.IN_PROGRESS : BookingStatus.COMPLETED);
+        if(booking.getStatus().equals(BookingStatus.PENDING)){
+            booking.setStatus(BookingStatus.CONFIRMED);
+        } else if(booking.getStatus().equals(BookingStatus.CONFIRMED)){
+            booking.setStatus(BookingStatus.IN_PROGRESS);
+        } else if(booking.getStatus().equals(BookingStatus.IN_PROGRESS)){
+            booking.setStatus(BookingStatus.COMPLETED);
+        }
         bookingRepository.save(booking);
     }
 
