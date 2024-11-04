@@ -94,7 +94,7 @@ public class BookingController {
                                                     @RequestParam(defaultValue = "10") Integer size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<ListBookingResponseDTO> bookings = bookingService.getAllStaffBookings(request, bookingStatus, pageable);
+            Page<BookingDetailStaffResponse> bookings = bookingService.getAllStaffBookings(request, bookingStatus, pageable);
             return ResponseEntity.ok((API.Response.success(bookings)));
         } catch (Exception e) {
             return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));

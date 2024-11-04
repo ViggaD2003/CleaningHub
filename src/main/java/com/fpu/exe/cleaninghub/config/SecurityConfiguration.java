@@ -65,6 +65,10 @@ public class SecurityConfiguration {
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
+                                .requestMatchers("/api/v1/auth/**", "/api/v1/categories/getAll", "/api/v1/bookings/**", "/api/v1/user/**" , "/api/v1/services/**", "/api/v1/payOS/**" , "/api/v1/durations/**",  "/swagger-resources/**",
+                                        "/webjars/**", "/swagger-ui.html", "/api/v1/vouchers/**", "/v3/api-docs/**", "/swagger-ui/**", "/oauth2/authorization/google/**",
+                                        "/ws/**")
+                                .permitAll()
                         .requestMatchers("/api/v1/auth/**", "/api/v1/categories/getAll", "/api/v1/bookings/**", "/api/v1/users/get-highest-average-staff" , "/api/v1/services/**", "/api/v1/payOS/**" , "/api/v1/durations/**",  "/swagger-resources/**",
                                 "/webjars/**", "/swagger-ui.html", "/api/v1/vouchers/**", "/v3/api-docs/**", "/swagger-ui/**", "/oauth2/authorization/google",
                                 "/ws/**")

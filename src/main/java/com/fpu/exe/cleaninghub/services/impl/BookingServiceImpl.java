@@ -207,21 +207,22 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable) {
+    public Page<BookingDetailStaffResponse> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable) {
         Page<Booking> bookings = bookingRepository.findByStaffId(getCurrentUser(request).getId(),bookingStatus, pageable);
-        Page<ListBookingResponseDTO> pageList = bookings.map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class));
-        for(ListBookingResponseDTO x : pageList){
-            x.setCurrentStaff(getCurrentUser(request));
+        Page<BookingDetailStaffResponse> pageList = bookings.map(booking -> modelMapper.map(booking, BookingDetailStaffResponse.class));
+        for(BookingDetailStaffResponse x : pageList){
+            x.setStaff(modelMapper.map(getCurrentUser(request), UserResponseDTO.class));
         }
         return pageList;
     }
 
     @Override
-    public List<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request) {
+    public List<BookingDetailStaffResponse> getAllStaffBookings(HttpServletRequest request) {
         List<Booking> bookings = bookingRepository.findByStaffIdWithStatusPending(getCurrentUser(request).getId());
-        List<ListBookingResponseDTO> list = bookings.stream().map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class)).toList();
-        for(ListBookingResponseDTO x : list){
-            x.setCurrentStaff(getCurrentUser(request));
+        List<BookingDetailStaffResponse> list = bookings.stream().map(booking -> modelMapper.map(booking, BookingDetailStaffResponse.class)).toList();
+        for(BookingDetailStaffResponse x : list){
+            x.setStaff(modelMapper.map(getCurrentUser(request), UserResponseDTO.class
+            ));
         }
         return list;
     }
@@ -413,10 +414,18 @@ public class BookingServiceImpl implements BookingService {
 
         return response;
     }
+
     @Override
     public void updateStatusBooking(String status, Integer bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new RuntimeException("not found booking !"));
-        booking.setStatus(status.equals(BookingStatus.IN_PROGRESS) ? BookingStatus.IN_PROGRESS : BookingStatus.COMPLETED);
+        if(booking.getStatus().equals(BookingStatus.PENDING)){
+            booking.setStatus(BookingStatus.CONFIRMED);
+        } else if(booking.getStatus().equals(BookingStatus.CONFIRMED)){
+            booking.setStatus(BookingStatus.IN_PROGRESS);
+        } else if(booking.getStatus().equals(BookingStatus.IN_PROGRESS)){
+            booking.setStatus(BookingStatus.COMPLETED);
+        }
         bookingRepository.save(booking);
     }
+
 }
