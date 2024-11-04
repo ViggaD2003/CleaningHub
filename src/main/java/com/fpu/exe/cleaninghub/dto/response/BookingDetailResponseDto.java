@@ -1,9 +1,12 @@
 package com.fpu.exe.cleaninghub.dto.response;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.List;
 @Data
+@NoArgsConstructor
 public class BookingDetailResponseDto {
     private Integer id;
     private String serviceName;
