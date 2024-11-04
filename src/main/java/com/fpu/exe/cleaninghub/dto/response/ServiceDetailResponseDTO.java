@@ -14,5 +14,5 @@ public class ServiceDetailResponseDTO {
     private Double basePrice;
     private String status;
     private String img;
-    private Category category;
+    private CategoryResponseDTO category;
 }

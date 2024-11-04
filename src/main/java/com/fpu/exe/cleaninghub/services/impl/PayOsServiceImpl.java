@@ -46,7 +46,7 @@ public class PayOsServiceImpl implements PayOsService {
         Payments payments = modelMapper.map(responseDTO.getBookingDetail().getPayment(), Payments.class);
         String productName = responseDTO.getService().getName();
         String description = "Thanh toan don hang";
-        String baseUrl = "http://localhost:8080/api/v1/payOS";
+        String baseUrl = "https://ch-api.arisavinh.dev/api/v1/payOS";
         String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
                 .queryParam("bookingId", responseDTO.getId()).toUriString();
         BigDecimal price = payments.getFinalPrice();

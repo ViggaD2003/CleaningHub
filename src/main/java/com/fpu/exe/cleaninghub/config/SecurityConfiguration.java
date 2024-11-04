@@ -55,7 +55,7 @@ public class SecurityConfiguration {
         http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("http://localhost:5173"));
+                    config.setAllowedOrigins(Collections.singletonList("https://cleaning-hub.vercel.app/"));
                     config.setAllowedMethods(Collections.singletonList("*"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(Collections.singletonList("*"));
@@ -69,6 +69,10 @@ public class SecurityConfiguration {
                                         "/webjars/**", "/swagger-ui.html", "/api/v1/vouchers/**", "/v3/api-docs/**", "/swagger-ui/**", "/oauth2/authorization/google/**",
                                         "/ws/**")
                                 .permitAll()
+                        .requestMatchers("/api/v1/auth/**", "/api/v1/categories/getAll", "/api/v1/bookings/**", "/api/v1/users/get-highest-average-staff" , "/api/v1/services/**", "/api/v1/payOS/**" , "/api/v1/durations/**",  "/swagger-resources/**",
+                                "/webjars/**", "/swagger-ui.html", "/api/v1/vouchers/**", "/v3/api-docs/**", "/swagger-ui/**", "/oauth2/authorization/google",
+                                "/ws/**")
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e.accessDeniedHandler(customAccessDeniedHandler)
@@ -82,7 +86,7 @@ public class SecurityConfiguration {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(user -> user.userService(customOAuth2UserService))
                         .defaultSuccessUrl("/api/v1/auth/signInGoogle", true)
-                        .failureUrl("http://localhost:5173/login"));
+                        .failureUrl("https://cleaning-hub.vercel.app/login"));
 
         http.exceptionHandling(exception -> exception
                 .authenticationEntryPoint(beanConfig.authenticationEntryPoint())

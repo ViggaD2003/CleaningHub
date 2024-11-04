@@ -27,14 +27,13 @@ public class SwaggerConfiguration {
     @Bean
     public OpenAPI CleaningHubOpenAPI() {
         return new OpenAPI()
-                .addServersItem(new Server().url("/"))
+                .addServersItem(new Server().url("https://ch-api.arisavinh.dev"))
                 .info(new Info().title("CLeaning Hub API")
                         .description("Cleaning hub application")
                         .version("v0.0.1")
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")))
                 .externalDocs(new ExternalDocumentation()
-                        .description("Cleaning Hub Documentation")
-                        .url("https://troll.vn"));
+                        .description("Cleaning Hub Documentation"));
     }
 
     @Bean

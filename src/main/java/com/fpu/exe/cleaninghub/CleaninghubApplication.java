@@ -57,17 +57,16 @@ public class CleaninghubApplication implements CommandLineRunner {
 		}
 
 		Role role = roleRepo.findById(1).orElseThrow();
-		User adminAccount = userRepository.findByRole(role);
+		 User adminAccount = userRepository.findByRole(role);
 
-		if(null == adminAccount ){
-			User user = new User();
-			user.setEmail("admin@gmail.com");
-			user.setRole(role);
-			user.setStatus(true);
-			user.setPassword(new BCryptPasswordEncoder().encode("123"));
-			user.setStatus(true);
-			user.setAccountLocked(true);
-			userRepository.save(user);
-		}
+		 if(null == adminAccount){
+		 	User user = new User();
+		 	user.setEmail("admin@gmail.com");
+		 	user.setRole(role);
+		 	user.setPassword(new BCryptPasswordEncoder().encode("123"));
+		 	user.setStatus(true);
+		 	user.setAccountLocked(true);
+		 	userRepository.save(user);
+		 }
 	}
 }

@@ -135,7 +135,6 @@ public class BookingController {
         }
     }
 
-
     @PatchMapping("/update-booking-status")
     public ResponseEntity<?> updateStatusBooking(@RequestParam("status") String status, @RequestParam("bookingId") Integer bookingId) {
         try{

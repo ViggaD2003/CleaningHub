@@ -52,7 +52,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     Double calculateTotalRevenue();
 
     // Calculate average rating
-    @Query("SELECT AVG(b.rating.stars) FROM Booking b")
+    @Query("SELECT AVG(u.averageRating) FROM User u WHERE u.role.id = 3")
     Double calculateAverageRating();
 
     @Query("SELECT b FROM Booking b " +

@@ -37,9 +37,9 @@ public class PayOSController {
     public RedirectView successOrCancel(@RequestParam Integer bookingId, @RequestParam String status){
         if (status.equalsIgnoreCase("CANCELLED")){
             bookingService.changePaymentStatusOfBooking(orderCode, bookingId, PaymentStatus.FAILED);
-            return new RedirectView("http://localhost:5173/booking-cancel");
+            return new RedirectView("https://cleaning-hub.vercel.app/booking-cancel");
         }
         bookingService.changePaymentStatusOfBooking(orderCode, bookingId, PaymentStatus.SUCCESS);
-        return new RedirectView("http://localhost:5173/booking-success");
+        return new RedirectView("https://cleaning-hub.vercel.app/booking-success");
     }
 }

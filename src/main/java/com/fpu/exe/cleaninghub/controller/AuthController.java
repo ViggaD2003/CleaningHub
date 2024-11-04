@@ -68,7 +68,7 @@
         @GetMapping("/signInGoogle")
         public void handleGoogleCallback(HttpServletResponse response) throws IOException {
             JwtAuthenticationResponse accessToken = authenticationService.signInGoogle();
-            response.sendRedirect("http://localhost:5173/login-success?token=" + accessToken.getToken() + "&refresh_token=" + accessToken.getRefreshToken());
+            response.sendRedirect("https://cleaning-hub.vercel.app/login-success?token=" + accessToken.getToken() + "&refresh_token=" + accessToken.getRefreshToken());
         }
 
         @PostMapping("/refresh")

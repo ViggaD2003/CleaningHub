@@ -5,10 +5,11 @@ spring:
         registration:
           google:
             client-id: 754638558669-62q5oo3a2topoc82t3ijqnnfgvc55e65.apps.googleusercontent.com
-            client-secret: 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
+            client-secret: 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
             scope: profile, email
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
+            redirect-uri: ${BASE_API_URL:http://localhost:8080}/login/oauth2/code/google
         provider:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
