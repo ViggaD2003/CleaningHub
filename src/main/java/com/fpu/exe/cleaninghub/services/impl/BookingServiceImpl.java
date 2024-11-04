@@ -217,11 +217,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request) {
+    public List<BookingDetailStaffResponse> getAllStaffBookings(HttpServletRequest request) {
         List<Booking> bookings = bookingRepository.findByStaffIdWithStatusPending(getCurrentUser(request).getId());
-        List<ListBookingResponseDTO> list = bookings.stream().map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class)).toList();
-        for(ListBookingResponseDTO x : list){
-            x.setCurrentStaff(getCurrentUser(request));
+        List<BookingDetailStaffResponse> list = bookings.stream().map(booking -> modelMapper.map(booking, BookingDetailStaffResponse.class)).toList();
+        for(BookingDetailStaffResponse x : list){
+            x.setStaff(modelMapper.map(getCurrentUser(request), UserResponseDTO.class));
         }
         return list;
     }
