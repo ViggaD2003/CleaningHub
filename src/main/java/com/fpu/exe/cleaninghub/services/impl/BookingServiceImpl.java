@@ -207,11 +207,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable) {
+    public Page<BookingDetailStaffResponse> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable) {
         Page<Booking> bookings = bookingRepository.findByStaffId(getCurrentUser(request).getId(),bookingStatus, pageable);
-        Page<ListBookingResponseDTO> pageList = bookings.map(booking -> modelMapper.map(booking, ListBookingResponseDTO.class));
-        for(ListBookingResponseDTO x : pageList){
-            x.setCurrentStaff(getCurrentUser(request));
+        Page<BookingDetailStaffResponse> pageList = bookings.map(booking -> modelMapper.map(booking, BookingDetailStaffResponse.class));
+        for(BookingDetailStaffResponse x : pageList){
+            x.setStaff(modelMapper.map(getCurrentUser(request), UserResponseDTO.class));
         }
         return pageList;
     }
@@ -221,7 +221,8 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = bookingRepository.findByStaffIdWithStatusPending(getCurrentUser(request).getId());
         List<BookingDetailStaffResponse> list = bookings.stream().map(booking -> modelMapper.map(booking, BookingDetailStaffResponse.class)).toList();
         for(BookingDetailStaffResponse x : list){
-            x.setStaff(modelMapper.map(getCurrentUser(request), UserResponseDTO.class));
+            x.setStaff(modelMapper.map(getCurrentUser(request), UserResponseDTO.class
+            ));
         }
         return list;
     }
