@@ -10,7 +10,6 @@ import java.time.LocalDate;
 
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class RatingDTO {
     private Long id;
