@@ -81,6 +81,7 @@ public class ServiceController {
 
     @PatchMapping("/update-img-service/{id}")
     public ResponseEntity<?> updateImgService(@PathVariable("id") Integer serviceId, @RequestParam("img") String imgService){
+        serviceService.updateImgService(serviceId, imgService);
         return ResponseEntity.ok(API.Response.success("update img successfully !!!"));
     }
 }
