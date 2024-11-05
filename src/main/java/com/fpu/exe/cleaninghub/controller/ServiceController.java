@@ -78,5 +78,10 @@ public class ServiceController {
     public List<CategoryServiceDistributionResponseDto> getCategoryDistribution() {
         return serviceService.getCategoryServiceDistribution();
     }
+
+    @PatchMapping("/update-img-service/{id}")
+    public ResponseEntity<?> updateImgService(@PathVariable("id") Integer serviceId, @RequestParam("img") String imgService){
+        return ResponseEntity.ok(API.Response.success("update img successfully !!!"));
+    }
 }
 
