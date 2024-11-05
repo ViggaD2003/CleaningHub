@@ -17,4 +17,5 @@ public interface ServiceService {
     ServiceDetailResponseDTO getServiceDetailById(Integer id);
     void deleteService(Integer serviceId);
     List<CategoryServiceDistributionResponseDto> getCategoryServiceDistribution();
+    void updateImgService(Integer serviceId, String imgURL);
 }

@@ -106,4 +106,12 @@ public class ServiceServiceImpl implements ServiceService {
             );
         }).collect(Collectors.toList());
     }
+
+    @Override
+    public void updateImgService(Integer serviceId, String imgURL) {
+        com.fpu.exe.cleaninghub.entity.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new RuntimeException("Service not found"));
+        imgURL = imgURL.replace("\"", "").trim();
+        service.setImg(imgURL);
+        serviceRepository.save(service);
+    }
 }
