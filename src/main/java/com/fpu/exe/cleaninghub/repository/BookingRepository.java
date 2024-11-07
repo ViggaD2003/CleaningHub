@@ -30,8 +30,7 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
 
     Optional<Booking> findByIdAndUserId(Integer bookingId, Integer userId);
     @Query("SELECT b FROM Booking b " +
-            "JOIN b.staff s " +
-            "WHERE s.id = :staffId " +
+            "WHERE EXISTS (SELECT s FROM b.staff s WHERE s.id = :staffId) " +
             "AND b.status = :bookingStatus")
     Page<Booking> findByStaffId(@Param("staffId") Integer staffId,
                                 @Param("bookingStatus") BookingStatus bookingStatus,
