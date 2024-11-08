@@ -292,6 +292,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional
     public void changePaymentStatusOfBooking(Long orderCode, Integer bookingId, PaymentStatus paymentStatus) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> new IllegalArgumentException("Booking not found"));
         Payments payments = booking.getBookingDetail().getPayment();
