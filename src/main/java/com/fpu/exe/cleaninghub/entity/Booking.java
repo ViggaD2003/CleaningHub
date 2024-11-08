@@ -32,7 +32,7 @@ public class Booking extends Auditable {
     private BookingStatus status;
 
     @JsonIgnore
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "booking_detail_id", referencedColumnName = "id")
     private BookingDetail bookingDetail;
 
