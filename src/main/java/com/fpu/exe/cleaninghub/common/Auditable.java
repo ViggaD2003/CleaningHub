@@ -15,7 +15,7 @@ import lombok.Setter;
 public abstract class Auditable {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdDate;
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = true)
     private LocalDateTime updatedDate;
 
     @PrePersist

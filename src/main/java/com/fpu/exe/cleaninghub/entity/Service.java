@@ -1,13 +1,10 @@
 package com.fpu.exe.cleaninghub.entity;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fpu.exe.cleaninghub.common.Auditable;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -34,7 +31,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "service")
-public class Service {
+public class Service extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,14 +48,6 @@ public class Service {
 
     @Column(name = "status")
     private String status;
-
-    @Column(name = "create_date", nullable = false, updatable = false)
-    @CreatedDate
-    private LocalDate createDate;
-
-    @Column(name = "update_date", insertable = false)
-    @LastModifiedDate
-    private LocalDate updateDate;
 
     @Column(name = "img")
     private String img;

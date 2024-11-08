@@ -1,20 +1,14 @@
 package com.fpu.exe.cleaninghub.services.impl;
 
-import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
-import com.fpu.exe.cleaninghub.dto.response.*;
-import com.fpu.exe.cleaninghub.entity.*;
-import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
-import com.fpu.exe.cleaninghub.enums.Payment.PaymentMethod;
-import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
-import com.fpu.exe.cleaninghub.exception.OperationNotPermittedException;
-import com.fpu.exe.cleaninghub.repository.*;
-import com.fpu.exe.cleaninghub.services.interfc.BookingService;
-import com.fpu.exe.cleaninghub.services.interfc.JWTService;
-import com.fpu.exe.cleaninghub.services.interfc.MapBoxService;
-import com.fpu.exe.cleaninghub.services.interfc.RatingService;
-import groovy.util.logging.Slf4j;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,11 +22,45 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+
+import com.fpu.exe.cleaninghub.dto.request.CreateBookingRequestDTO;
+import com.fpu.exe.cleaninghub.dto.response.BookingDetailResponseDto;
+import com.fpu.exe.cleaninghub.dto.response.BookingDetailStaffResponse;
+import com.fpu.exe.cleaninghub.dto.response.BookingResponseDto;
+import com.fpu.exe.cleaninghub.dto.response.CreateBookingResponseDTO;
+import com.fpu.exe.cleaninghub.dto.response.DurationResponseDTO;
+import com.fpu.exe.cleaninghub.dto.response.ListBookingResponseDTO;
+import com.fpu.exe.cleaninghub.dto.response.PaymentResponseDto;
+import com.fpu.exe.cleaninghub.dto.response.ServiceDetailResponseDTO;
+import com.fpu.exe.cleaninghub.dto.response.StaffDistanceInfo;
+import com.fpu.exe.cleaninghub.dto.response.UserResponseDTO;
+import com.fpu.exe.cleaninghub.dto.response.VoucherResponseDto;
+import com.fpu.exe.cleaninghub.entity.Booking;
+import com.fpu.exe.cleaninghub.entity.BookingDetail;
+import com.fpu.exe.cleaninghub.entity.Duration;
+import com.fpu.exe.cleaninghub.entity.Payments;
+import com.fpu.exe.cleaninghub.entity.User;
+import com.fpu.exe.cleaninghub.entity.Voucher;
+import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
+import com.fpu.exe.cleaninghub.enums.Payment.PaymentMethod;
+import com.fpu.exe.cleaninghub.enums.Payment.PaymentStatus;
+import com.fpu.exe.cleaninghub.exception.OperationNotPermittedException;
+import com.fpu.exe.cleaninghub.repository.BookingDetailRepository;
+import com.fpu.exe.cleaninghub.repository.BookingRepository;
+import com.fpu.exe.cleaninghub.repository.DurationRepository;
+import com.fpu.exe.cleaninghub.repository.PaymentRepository;
+import com.fpu.exe.cleaninghub.repository.ServiceRepository;
+import com.fpu.exe.cleaninghub.repository.TokenRepository;
+import com.fpu.exe.cleaninghub.repository.UserRepository;
+import com.fpu.exe.cleaninghub.repository.VoucherRepository;
+import com.fpu.exe.cleaninghub.services.interfc.BookingService;
+import com.fpu.exe.cleaninghub.services.interfc.JWTService;
+import com.fpu.exe.cleaninghub.services.interfc.MapBoxService;
+import com.fpu.exe.cleaninghub.services.interfc.RatingService;
+
+import groovy.util.logging.Slf4j;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 
 @Slf4j
 @Service
@@ -353,8 +381,8 @@ public class BookingServiceImpl implements BookingService {
         voucherDto.setId(voucher.getId());
         voucherDto.setAmount(voucher.getAmount());
         voucherDto.setPercentage(voucher.getPercentage());
-        voucherDto.setCreateDate(voucher.getCreateDate());
-        voucherDto.setUpdateDate(voucher.getUpdateDate());
+        voucherDto.setCreateDate(voucher.getCreatedDate());
+        voucherDto.setUpdateDate(voucher.getUpdatedDate());
         voucherDto.setExpiredDate(voucher.getExpiredDate());
         return voucherDto;
     }

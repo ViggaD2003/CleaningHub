@@ -1,13 +1,10 @@
 package com.fpu.exe.cleaninghub.entity;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fpu.exe.cleaninghub.common.Auditable;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -32,21 +29,13 @@ import lombok.Setter;
 @Table(name = "voucher")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Voucher {
+public class Voucher extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "percentage")
     private Integer percentage;
-
-    @Column(name = "create_date", nullable = false, updatable = false)
-    @CreatedDate
-    private LocalDate createDate;
-
-    @Column(name = "update_date", insertable = false)
-    @LastModifiedDate
-    private LocalDate updateDate;
 
     @Column(name = "expired_date")
     private LocalDateTime expiredDate;
