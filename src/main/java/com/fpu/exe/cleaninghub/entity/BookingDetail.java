@@ -1,13 +1,10 @@
 package com.fpu.exe.cleaninghub.entity;
 
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fpu.exe.cleaninghub.common.Auditable;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,7 +26,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "booking_detail")
-@EntityListeners(AuditingEntityListener.class)
 public class BookingDetail extends Auditable {
 
     @Id
