@@ -36,10 +36,10 @@ public class Notification {
     @Column(nullable = false)
     private String status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "created_date")
     private LocalDateTime createdAt;
 
-    @Column(nullable = true)
+    @Column(nullable = true, name = "ex_date")
     private LocalDateTime expiresAt;
 
     @Column(nullable = true)

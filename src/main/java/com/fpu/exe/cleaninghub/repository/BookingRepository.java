@@ -1,19 +1,18 @@
 package com.fpu.exe.cleaninghub.repository;
 
-import com.fpu.exe.cleaninghub.dto.response.ListBookingResponseDTO;
-import com.fpu.exe.cleaninghub.entity.Booking;
-import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
-import java.util.Optional;
-import java.util.List;
+import com.fpu.exe.cleaninghub.dto.response.ListBookingResponseDTO;
+import com.fpu.exe.cleaninghub.entity.Booking;
+import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Integer> {
     @Query("SELECT b FROM Booking b " +
