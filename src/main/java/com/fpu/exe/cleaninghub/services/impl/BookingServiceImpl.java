@@ -311,14 +311,10 @@ public class BookingServiceImpl implements BookingService {
                 }
         );
 
-
+        System.out.println(String.valueOf(orderCode));
         payments.setTransactionId(String.valueOf(orderCode));
-        try {
-            paymentRepository.save(payments);
-            bookingRepository.save(booking);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        paymentRepository.save(payments);
+        bookingRepository.save(booking);
     }
 
     private BigDecimal calculateFinalPrice(com.fpu.exe.cleaninghub.entity.Service service, Duration duration, Voucher voucher, Integer numberOfWorker) {
