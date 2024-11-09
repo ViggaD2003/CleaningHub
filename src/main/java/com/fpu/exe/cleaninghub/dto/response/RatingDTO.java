@@ -1,18 +1,16 @@
 package com.fpu.exe.cleaninghub.dto.response;
 
-import com.fpu.exe.cleaninghub.entity.Booking;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-@Builder
+
 @Data
+@NoArgsConstructor
 public class RatingDTO {
     private Long id;
 
@@ -21,4 +19,12 @@ public class RatingDTO {
     private LocalDate ratingDate;
 
     private String comments;
+
+    @Builder // Đặt @Builder tại constructor có tất cả các tham số
+    public RatingDTO(Long id, Integer stars, LocalDate ratingDate, String comments) {
+        this.id = id;
+        this.stars = stars;
+        this.ratingDate = ratingDate;
+        this.comments = comments;
+    }
 }

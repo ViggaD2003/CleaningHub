@@ -1,16 +1,13 @@
 package com.fpu.exe.cleaninghub.entity;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fpu.exe.cleaninghub.common.Auditable;
 import com.fpu.exe.cleaninghub.enums.Booking.BookingStatus;
 import jakarta.persistence.*;
 import lombok.*;
-
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter
@@ -19,7 +16,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "booking")
-@EntityListeners(AuditingEntityListener.class)
 public class Booking extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +26,7 @@ public class Booking extends Auditable {
     private BookingStatus status;
 
     @JsonIgnore
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "booking_detail_id", referencedColumnName = "id")
     private BookingDetail bookingDetail;
 

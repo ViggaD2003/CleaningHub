@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,6 @@ public class ServiceServiceImpl implements ServiceService {
                 .description(createServiceRequestDto.getDescription())
                 .basePrice(createServiceRequestDto.getBasePrice())
                 .status(Status.Active.name().toLowerCase())
-                .createDate(LocalDate.now())
                 .img(createServiceRequestDto.getImg())
                 .category(category)
                 .build();
@@ -105,5 +105,13 @@ public class ServiceServiceImpl implements ServiceService {
                     percentage
             );
         }).collect(Collectors.toList());
+    }
+
+     @Override
+    public void updateImgService(Integer serviceId, String imgURL) {
+        com.fpu.exe.cleaninghub.entity.Service service = serviceRepository.findById(serviceId).orElseThrow(() -> new RuntimeException("Service not found"));
+        imgURL = imgURL.replace("\"", "").trim();
+        service.setImg(imgURL);
+        serviceRepository.save(service);
     }
 }

@@ -14,8 +14,8 @@ public interface BookingService {
     Page<BookingResponseDto> searchBookings(HttpServletRequest request, String searchTerm, int pageIndex, int pageSize);
     BookingDetailResponseDto getBookingDetail(HttpServletRequest request, Integer bookingId);
     CreateBookingResponseDTO createBooking(CreateBookingRequestDTO createBookingRequestDTO) throws Exception;
-    Page<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable);
-    List<ListBookingResponseDTO> getAllStaffBookings(HttpServletRequest request);
+    Page<BookingDetailStaffResponse> getAllStaffBookings(HttpServletRequest request, BookingStatus bookingStatus, Pageable pageable);
+    List<BookingDetailStaffResponse> getAllStaffBookings(HttpServletRequest request);
     void ChangeBookingStatus(BookingStatus bookingStatus, Integer id, HttpServletRequest request);
 //    List<User> findAvailableStaff(List<User> availableStaffs, Integer numberOfWorker);
     void changePaymentStatusOfBooking(Long orderCode, Integer bookingId, PaymentStatus paymentStatus);
