@@ -148,11 +148,10 @@ public class BookingServiceImpl implements BookingService {
         LocalDateTime endTime = createBookingRequestDTO.getStartTime().plusHours(durationSelected.getDurationInHours());
         List<User> availableStaffs = userRepository.findStaffByBookingTime(createBookingRequestDTO.getStartTime(), endTime);
 
-        if(availableStaffs.isEmpty()){
+        if(availableStaffs.isEmpty() || availableStaffs.size() < createBookingRequestDTO.getNumberOfWorker()){
             throw new RuntimeException("The staffs are busy at this time. Please choose another time");
-        } else if (availableStaffs.size() < createBookingRequestDTO.getNumberOfWorker()) {
-            throw new RuntimeException("The staffs are busy at this time");
         }
+
         List<User> listStaff = findAvailableStaff(createBookingRequestDTO.getLongitude(), createBookingRequestDTO.getLatitude(), availableStaffs, createBookingRequestDTO.getNumberOfWorker());
 
 

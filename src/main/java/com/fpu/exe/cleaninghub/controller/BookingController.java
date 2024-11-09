@@ -83,8 +83,11 @@ public class BookingController {
         try {
             CreateBookingResponseDTO response = bookingService.createBooking(createBookingRequestDTO);
             return ResponseEntity.ok(API.Response.success(response));
+        } catch (RuntimeException  e) {
+            return ResponseEntity.badRequest().body(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.ok(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
+            // Xử lý các lỗi khác
+            return ResponseEntity.badRequest().body(API.Response.error(HttpStatus.BAD_REQUEST, "Something went wrong", e.getMessage()));
         }
     }
 
