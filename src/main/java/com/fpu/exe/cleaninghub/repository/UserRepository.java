@@ -32,16 +32,14 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 //            "AND u.accountLocked = true")
 //    List<User> findStaffByBookingTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
-    @Query("SELECT u " +
-            "FROM User u " +
-            "LEFT JOIN u.assignOfStaffs b " +
-            "WHERE u.role.id = 3 " +  // Only staff role
-            "AND (b IS NULL OR " +    // Staff has no overlapping bookings
-            "(b.status != 'COMPLETED' AND " +
-            "(b.endDate <= :startTime OR b.startDate >= :endTime))) " +  // No overlap condition
+    @Query("SELECT u FROM User u LEFT JOIN u.assignOfStaffs b " +
+            "WHERE u.role.id = 3 " +
+            "AND (b IS NULL OR (b.status != 'COMPLETED' AND " +
+            "(b.endDate <= :startTime OR b.startDate >= :endTime))) " +
             "AND u.accountLocked = true")
     List<User> findStaffByBookingTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
-g
+
+
 
     @Query("SELECT u FROM User u WHERE u.role.id = 3 ORDER BY u.averageRating DESC LIMIT 5")
     List<User> getFiveUserHaveHighestAverageRating();
