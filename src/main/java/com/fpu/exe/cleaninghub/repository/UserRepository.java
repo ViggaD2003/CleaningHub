@@ -21,16 +21,27 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT c FROM User c WHERE c.role.id = 3")
     List<User> findAllStaff();
 
+//    @Query("SELECT u " +
+//            "FROM User u " +
+//            "LEFT JOIN u.assignOfStaffs b " +  // Join với bảng Booking thông qua assignOfStaffs
+//            "ON b.status != 'COMPLETED' " +  // Điều kiện trạng thái Booking chưa hoàn thành
+//            "AND b.startDate < :endTime " +  // Điều kiện thời gian không xung đột
+//            "AND b.endDate > :startTime " +
+//            "WHERE u.role.id = 3 " +  // Lọc theo role của User (staff)
+//            "AND b.id IS NULL " +  // Staff không có booking trùng thời gian
+//            "AND u.accountLocked = true")
+//    List<User> findStaffByBookingTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+
     @Query("SELECT u " +
             "FROM User u " +
-            "LEFT JOIN u.assignOfStaffs b " +  // Join với bảng Booking thông qua assignOfStaffs
-            "ON b.status != 'COMPLETED' " +  // Điều kiện trạng thái Booking chưa hoàn thành
-            "AND b.startDate < :endTime " +  // Điều kiện thời gian không xung đột
-            "AND b.endDate > :startTime " +
-            "WHERE u.role.id = 3 " +  // Lọc theo role của User (staff)
-            "AND b.id IS NULL " +  // Staff không có booking trùng thời gian
+            "LEFT JOIN u.assignOfStaffs b " +
+            "WHERE u.role.id = 3 " +  // Only staff role
+            "AND (b IS NULL OR " +    // Staff has no overlapping bookings
+            "(b.status != 'COMPLETED' AND " +
+            "(b.endDate <= :startTime OR b.startDate >= :endTime))) " +  // No overlap condition
             "AND u.accountLocked = true")
     List<User> findStaffByBookingTime(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
+g
 
     @Query("SELECT u FROM User u WHERE u.role.id = 3 ORDER BY u.averageRating DESC LIMIT 5")
     List<User> getFiveUserHaveHighestAverageRating();
