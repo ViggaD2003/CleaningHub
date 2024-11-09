@@ -3,10 +3,7 @@ package com.fpu.exe.cleaninghub.services.impl;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -138,24 +135,29 @@ public class BookingServiceImpl implements BookingService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-
-
         Duration durationSelected = durationRepository
                 .findById(createBookingRequestDTO.getDurationId()).get();
 
         com.fpu.exe.cleaninghub.entity.Service service = serviceRepository.findById(createBookingRequestDTO.getServiceId()).get();
 
         LocalDateTime endTime = createBookingRequestDTO.getStartTime().plusHours(durationSelected.getDurationInHours());
-        List<User> availableStaffs = userRepository.findStaffByBookingTime(createBookingRequestDTO.getStartTime(), endTime);
 
-        if(availableStaffs.isEmpty() || availableStaffs.size() < createBookingRequestDTO.getNumberOfWorker()){
+        List<Long> userIdsWithOverlappingBookings = bookingRepository.findUserIdsWithOverlappingBookings(createBookingRequestDTO.getStartTime(), endTime);
+        List<User> userWithNotOverLap = userIdsWithOverlappingBookings.isEmpty()
+                ? userRepository.findAll()
+                : userRepository.findUsersWithoutOverlappingBookings(userIdsWithOverlappingBookings);
+
+        if (userWithNotOverLap.size() < createBookingRequestDTO.getNumberOfWorker()) {
             throw new RuntimeException("The staffs are busy at this time. Please choose another time");
         }
 
-        List<User> listStaff = findAvailableStaff(createBookingRequestDTO.getLongitude(), createBookingRequestDTO.getLatitude(), availableStaffs, createBookingRequestDTO.getNumberOfWorker());
+        List<User> listStaff = findAvailableStaff(createBookingRequestDTO.getLongitude(), createBookingRequestDTO.getLatitude(), userWithNotOverLap, createBookingRequestDTO.getNumberOfWorker());
 
+        if(listStaff.isEmpty()){
+            log.info("No staff found in this time");
+            throw new OperationNotPermittedException("No staff found in this time");
+        }
 
-        // Handle voucher if provided
         Voucher voucherSelected = null;
         if (createBookingRequestDTO.getVoucherId() != null) {
             voucherSelected = voucherRepository
@@ -207,12 +209,6 @@ public class BookingServiceImpl implements BookingService {
                 .startDate(createBookingRequestDTO.getStartTime())
                 .endDate(endTime)
                 .build();
-
-        if(listStaff.isEmpty()){
-            log.info("No staff found in this time");
-            throw new OperationNotPermittedException("No staff found in this time");
-        }
-
         bookingRepository.save(booking);
 
         return CreateBookingResponseDTO.builder()
