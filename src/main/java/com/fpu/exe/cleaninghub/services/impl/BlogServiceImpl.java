@@ -67,7 +67,8 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public void updateImgBlog(Integer blogId, String img) {
         Blog blog = blogRepository.findById(blogId).orElseThrow(() -> new RuntimeException("Blog not found"));
-       blog.setImg(img);
+        img = img.replace("\"", "").trim();
+        blog.setImg(img);
         blogRepository.save(blog);
     }
 }
