@@ -3,6 +3,8 @@ package com.fpu.exe.cleaninghub.services.impl;
 import com.fpu.exe.cleaninghub.dto.request.CreateBlogRequest;
 import com.fpu.exe.cleaninghub.dto.response.BlogResponse;
 import com.fpu.exe.cleaninghub.entity.Blog;
+import com.fpu.exe.cleaninghub.entity.Booking;
+import com.fpu.exe.cleaninghub.entity.User;
 import com.fpu.exe.cleaninghub.repository.BlogRepository;
 import com.fpu.exe.cleaninghub.services.interfc.BlogService;
 import javassist.NotFoundException;
@@ -26,8 +28,8 @@ public class BlogServiceImpl implements BlogService {
     ModelMapper modelMapper;
 
     @Override
-    public Page<BlogResponse> getBlogs(Pageable pageable) {
-        return blogRepository.findAll(pageable).map(blog -> modelMapper.map(blog, BlogResponse.class));
+    public Page<BlogResponse> getBlogs(String searchTerm, Pageable pageable) {
+        return blogRepository.findAllWithSearch(searchTerm, pageable).map(blog -> modelMapper.map(blog, BlogResponse.class));
     }
 
     @Override

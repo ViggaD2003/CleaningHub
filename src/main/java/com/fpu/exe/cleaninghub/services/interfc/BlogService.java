@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface BlogService {
-    Page<BlogResponse> getBlogs(Pageable pageable);
+    Page<BlogResponse> getBlogs(String searchTerm, Pageable pageable);
     BlogResponse getBlogById(Integer id);
     BlogResponse createBlog(CreateBlogRequest request);
     BlogResponse updateBlog(Integer blogId, CreateBlogRequest request);
