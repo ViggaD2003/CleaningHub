@@ -56,7 +56,7 @@ public class SecurityConfiguration {
         http
                 .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Arrays.asList("https://cleaning-hub.vercel.app/", "http://localhost:8080/"));
+                    config.setAllowedOrigins(Arrays.asList("https://cleaning-hub.vercel.app/", "http://localhost:5173/"));
                     config.setAllowedMethods(Collections.singletonList("*"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(Collections.singletonList("*"));
