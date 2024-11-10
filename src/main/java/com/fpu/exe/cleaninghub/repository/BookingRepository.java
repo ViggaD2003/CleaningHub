@@ -1,6 +1,5 @@
 package com.fpu.exe.cleaninghub.repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,13 +25,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
     @Query("SELECT b from Booking b ORDER BY b.createdDate desc ")
     Page<ListBookingResponseDTO> getBookingForAdminPage(Pageable pageable);
 
-    @Query("SELECT DISTINCT b.user.id FROM Booking b WHERE " +
-            "((:startTime BETWEEN b.startDate AND b.endDate) OR " +
-            "(:endTime BETWEEN b.startDate AND b.endDate) OR " +
-            "(b.startDate BETWEEN :startTime AND :endTime) OR " +
-            "(b.endDate BETWEEN :startTime AND :endTime))")
-    List<Long> findUserIdsWithOverlappingBookings(@Param("startTime") LocalDateTime startTime,
-                                                  @Param("endTime") LocalDateTime endTime);
 
 
     Optional<Booking> findByIdAndUserId(Integer bookingId, Integer userId);

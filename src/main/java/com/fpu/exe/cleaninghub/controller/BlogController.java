@@ -1,6 +1,8 @@
 package com.fpu.exe.cleaninghub.controller;
 
 import com.fpu.exe.cleaninghub.dto.request.CreateBlogRequest;
+import com.fpu.exe.cleaninghub.dto.response.BlogResponse;
+import com.fpu.exe.cleaninghub.entity.Blog;
 import com.fpu.exe.cleaninghub.services.interfc.BlogService;
 import com.fpu.exe.cleaninghub.utils.wapper.API;
 import lombok.AccessLevel;
@@ -21,33 +23,52 @@ public class BlogController {
     BlogService blogService;
 
     @GetMapping
-    public ResponseEntity<?> getBlogs(@RequestParam(defaultValue = "1") int pageIndex){
+    public ResponseEntity<?> getBlogs(@RequestParam(defaultValue = "1") int pageIndex) {
         try {
-            Pageable pageable = PageRequest.of(pageIndex - 1, 10);
+            Pageable pageable = PageRequest.of(pageIndex - 1, 5);
             var blogs = blogService.getBlogs(pageable);
             return ResponseEntity.ok(API.Response.success(blogs));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> createBlog(@RequestBody CreateBlogRequest request){
+    public ResponseEntity<?> createBlog(@RequestBody CreateBlogRequest request) {
         try {
             var blog = blogService.createBlog(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(API.Response.success(blog));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<?> getBlog(@PathVariable Integer id){
+    public ResponseEntity<?> getBlog(@PathVariable Integer id) {
         try {
             return ResponseEntity.ok(API.Response.success(blogService.getBlogById(id)));
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+    }
+
+    @PutMapping("update-blog")
+    public ResponseEntity<?> updateBlog(@RequestParam("blogId") Integer blogId, @RequestBody CreateBlogRequest blogResponse) {
+        try {
+            return ResponseEntity.ok(API.Response.success(blogService.updateBlog(blogId, blogResponse)));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("delete-blog")
+    public ResponseEntity<?> deleteBlog(@RequestParam("blogId") Integer blogId) {
+        try {
+            blogService.deleteBlog(blogId);
+            return ResponseEntity.ok(API.Response.success("Delete successfully !"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

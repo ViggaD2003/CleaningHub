@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -40,5 +41,24 @@ public class BlogServiceImpl implements BlogService {
         var blog = modelMapper.map(request, Blog.class);
         blogRepository.save(blog);
         return modelMapper.map(blog, BlogResponse.class);
+    }
+
+    @Override
+    @Transactional
+    public BlogResponse updateBlog(Integer blogId, CreateBlogRequest request) {
+      Blog blog = blogRepository.findById(blogId).orElseThrow(() -> new RuntimeException("Blog not found"));
+      blog.setContent(request.getContent());
+      blog.setTitle(request.getTitle());
+      blog.setImg(request.getImg());
+      blogRepository.save(blog);
+      return modelMapper.map(blog, BlogResponse.class);
+    }
+
+    @Override
+    public void deleteBlog(Integer id) {
+        Blog blog = blogRepository.findById(id).orElseThrow(() -> new RuntimeException("Blog not found"));
+        if(blog != null){
+            blogRepository.delete(blog);
+        }
     }
 }
