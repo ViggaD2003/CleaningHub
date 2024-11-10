@@ -56,6 +56,7 @@ public class BlogController {
     }
 
     @PutMapping("update-blog")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateBlog(@RequestParam("blogId") Integer blogId, @RequestBody CreateBlogRequest blogResponse) {
         try {
             return ResponseEntity.ok(API.Response.success(blogService.updateBlog(blogId, blogResponse)));
@@ -65,6 +66,7 @@ public class BlogController {
     }
 
     @DeleteMapping("delete-blog")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBlog(@RequestParam("blogId") Integer blogId) {
         try {
             blogService.deleteBlog(blogId);
