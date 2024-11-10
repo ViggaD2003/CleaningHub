@@ -1,6 +1,7 @@
 package com.fpu.exe.cleaninghub.services.impl;
 
 import com.fpu.exe.cleaninghub.dto.request.CreateBlogRequest;
+import com.fpu.exe.cleaninghub.dto.request.UpdateBlogRequest;
 import com.fpu.exe.cleaninghub.dto.response.BlogResponse;
 import com.fpu.exe.cleaninghub.entity.Blog;
 import com.fpu.exe.cleaninghub.entity.Booking;
@@ -45,15 +46,14 @@ public class BlogServiceImpl implements BlogService {
         return modelMapper.map(blog, BlogResponse.class);
     }
 
+
     @Override
     @Transactional
-    public BlogResponse updateBlog(Integer blogId, CreateBlogRequest request) {
+    public void updateBlog(Integer blogId, UpdateBlogRequest request) {
       Blog blog = blogRepository.findById(blogId).orElseThrow(() -> new RuntimeException("Blog not found"));
       blog.setContent(request.getContent());
       blog.setTitle(request.getTitle());
-      blog.setImg(request.getImg());
       blogRepository.save(blog);
-      return modelMapper.map(blog, BlogResponse.class);
     }
 
     @Override
@@ -62,5 +62,12 @@ public class BlogServiceImpl implements BlogService {
         if(blog != null){
             blogRepository.delete(blog);
         }
+    }
+
+    @Override
+    public void updateImgBlog(Integer blogId, String img) {
+        Blog blog = blogRepository.findById(blogId).orElseThrow(() -> new RuntimeException("Blog not found"));
+       blog.setImg(img);
+        blogRepository.save(blog);
     }
 }

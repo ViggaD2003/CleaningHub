@@ -1,6 +1,7 @@
 package com.fpu.exe.cleaninghub.controller;
 
 import com.fpu.exe.cleaninghub.dto.request.CreateBlogRequest;
+import com.fpu.exe.cleaninghub.dto.request.UpdateBlogRequest;
 import com.fpu.exe.cleaninghub.dto.response.BlogResponse;
 import com.fpu.exe.cleaninghub.entity.Blog;
 import com.fpu.exe.cleaninghub.services.interfc.BlogService;
@@ -46,6 +47,16 @@ public class BlogController {
         }
     }
 
+    @PatchMapping("update-img-blog")
+    public ResponseEntity<?> updateImgBlog(@RequestParam Integer blogId, @RequestParam String img) {
+        try{
+            blogService.updateImgBlog(blogId, img);
+            return ResponseEntity.ok(API.Response.success("Update success !"));
+        } catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<?> getBlog(@PathVariable Integer id) {
         try {
@@ -57,9 +68,10 @@ public class BlogController {
 
     @PutMapping("update-blog")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> updateBlog(@RequestParam("blogId") Integer blogId, @RequestBody CreateBlogRequest blogResponse) {
+    public ResponseEntity<?> updateBlog(@RequestParam("blogId") Integer blogId, @RequestBody UpdateBlogRequest blogResponse) {
         try {
-            return ResponseEntity.ok(API.Response.success(blogService.updateBlog(blogId, blogResponse)));
+            blogService.updateBlog(blogId, blogResponse);
+            return ResponseEntity.ok(API.Response.success("Update successfully !"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

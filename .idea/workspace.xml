@@ -5,8 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2831aa7-2bfc-47b8-acaf-1208c0f0dec1" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/dto/request/UpdateBlogRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/BlogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/BlogController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/impl/BlogServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/impl/BlogServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/interfc/BlogService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/interfc/BlogService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
