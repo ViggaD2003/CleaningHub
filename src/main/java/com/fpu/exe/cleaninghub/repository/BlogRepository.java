@@ -9,9 +9,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface BlogRepository extends JpaRepository<Blog, Integer> {
     @Query("SELECT b FROM Blog b WHERE " +
-            "(:keyword IS NULL OR :keyword = '' OR " +
-            "LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(b.content) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+            "(COALESCE(:keyword, '') = '' OR " +
+            "b.title LIKE %:keyword% OR " +
+            "b.content LIKE %:keyword%)")
     Page<Blog> findAllWithSearch(@Param("keyword") String keyword, Pageable pageable);
-
 }
