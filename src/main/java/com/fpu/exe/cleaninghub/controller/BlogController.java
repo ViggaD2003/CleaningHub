@@ -23,10 +23,12 @@ public class BlogController {
     BlogService blogService;
 
     @GetMapping
-    public ResponseEntity<?> getBlogs(@RequestParam(defaultValue = "1") int pageIndex) {
+    public ResponseEntity<?> getBlogs(
+            @RequestParam(value = "searchTerm", required = false) String searchTerm,
+            @RequestParam(defaultValue = "1") int pageIndex) {
         try {
             Pageable pageable = PageRequest.of(pageIndex - 1, 5);
-            var blogs = blogService.getBlogs(pageable);
+            var blogs = blogService.getBlogs(searchTerm, pageable);
             return ResponseEntity.ok(API.Response.success(blogs));
         } catch (Exception ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
