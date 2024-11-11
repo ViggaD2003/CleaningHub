@@ -48,7 +48,7 @@ public class BlogController {
     }
 
     @PatchMapping("update-img-blog")
-    public ResponseEntity<?> updateImgBlog(@RequestParam Integer blogId, @RequestParam String img) {
+    public ResponseEntity<?> updateImgBlog(@RequestParam("blogId") Integer blogId, @RequestBody String img) {
         try{
             blogService.updateImgBlog(blogId, img);
             return ResponseEntity.ok(API.Response.success("Update success !"));
