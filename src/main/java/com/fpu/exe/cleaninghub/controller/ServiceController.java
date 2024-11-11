@@ -27,7 +27,7 @@ public class ServiceController {
     @GetMapping("/available")
     public ResponseEntity<?> getAllServices(@RequestParam(defaultValue = "") String searchTerm,
                                             @RequestParam(defaultValue = "0") int pageIndex,
-                                            @RequestParam(defaultValue = "10") int pageSize) {
+                                            @RequestParam(defaultValue = "12") int pageSize) {
         Page<ServiceResponseDto> services = serviceService.getAvailableServices(searchTerm, pageIndex, pageSize);
         return ResponseEntity.ok(API.Response.success(services));
     }

@@ -5,11 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a2831aa7-2bfc-47b8-acaf-1208c0f0dec1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/dto/request/UpdateBlogRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/BlogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/BlogController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/impl/BlogServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/impl/BlogServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/interfc/BlogService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/services/interfc/BlogService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/ServiceController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/fpu/exe/cleaninghub/controller/ServiceController.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,6 +146,7 @@
       <workItem from="1731165888998" duration="6867000" />
       <workItem from="1731208764024" duration="7093000" />
       <workItem from="1731226343764" duration="3433000" />
+      <workItem from="1731296497867" duration="433000" />
     </task>
     <task id="LOCAL-00001" summary="push approperties">
       <option name="closed" value="true" />
